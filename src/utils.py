@@ -46,6 +46,6 @@ class Artemis_UtilFunctionality:
     
 
     def show_error_message(self, message: str, width: int) -> None:
-        print(f"\n\033[7;49;97m {(width -6) * '-'}\033[0m \033[0;49;31mException\033[0m \033[7;49;97m{(width -6) * '-'}\033[0m")
+        print(f"\n\033[1;47m {(width -6) * '-'}\033[0m \033[1;31mException\033[0m \033[1;47m{(width -6) * '-'}\033[0m")
         print(message)
-        print(f"\033[7;49;97m{width * 2 * '-'}\033[0m\n")
+        print(f"\033[1;47m{width * 2 * '-'}\033[0m\n")

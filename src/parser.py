@@ -38,4 +38,3 @@ class Artemis_ArgParser:
         if self.parser.create:
             compilers_bin_path: list[str] = sorted(list(set(self.__artemis_functions.get_compilers_bin_path_list())))
             self.__artemis_create_project.print_compilers(compilers_bin_path)
-
