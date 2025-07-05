@@ -68,3 +68,9 @@ class Artemis_CreateProject:
 
         print(f"\n\033[1;47m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}\033[0m\n")
         self.__user_compiler_selections(compilers_bin_path)
+
+    '''
+        This function is used to get the user-selected compilers.
+    '''
+    def get_compilers_user_selection(self) -> list[str]:
+        return self.__main_compiler
