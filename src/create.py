@@ -26,6 +26,7 @@ class Artemis_CreateProject:
         print(f"\n\033[1;47m{(self.__compiler_max_name_width * 2) * '-'}\033[0m")
         print("\033[0m")
     
+
     '''
         This function is used to get user input for selecting compilers.
         It displays the available compilers and prompts the user to select one or more by number.
@@ -64,10 +65,11 @@ class Artemis_CreateProject:
                 self.__remainder *= 10
             comp = os.path.split(compiler)
             comp_width = len(comp[1])
-            print(f"\033[1;32m[{counter}]\033[0m{space * ' '} \033[1m->\033[0m \033[1;33m{comp[1]}\033[0m{' ' * (self.__compiler_max_name_width - comp_width)}\033[1m{comp[0]}\033[0m")
+            print(f"\033[1;32m[{counter}]\033[0m{space * ' '} \033[1m->\033[0m \033[1;33m{comp[1]}\033[0m{' ' * (self.__compiler_max_name_width - comp_width)}\033[1m {comp[0]}\033[0m")
 
         print(f"\n\033[1;47m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}\033[0m\n")
         self.__user_compiler_selections(compilers_bin_path)
+
 
     '''
         This function is used to get the user-selected compilers.

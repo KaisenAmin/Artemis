@@ -9,6 +9,7 @@ class Artemis_UtilFunctionality:
         self.__env_path: list[str] = os.environ.get("PATH", '').split(os.pathsep)
         self.__default_compiler_names: list[str] = ['g++', 'gcc', 'cl', 'clang', 'x86_64-w64-mingw32', 'llvm', 'x86_64-w64-mingw32-clang++','cc', 'c++', 
             'x86_64-w64-mingw32-cc', 'x86_64-w64-mingw32-clang', 'x86_64-w64-mingw32-c++', 'mingw64', 'mingw32', 'x86_64-w64-mingw32-g++', 'x86_64-w64-mingw32-gcc', 'x86_64-w64-mingw32-gcc-ar', 'x86_64-w64-mingw32-gcc-nm', 'clang++']
+        self.__architecture: list[str] = ['x86_64', 'x86', 'arm64', 'arm']
 
 
     def __find_compilers_path(self) -> list[str]:
@@ -26,14 +27,14 @@ class Artemis_UtilFunctionality:
         
         return self.__compilers_absolute_path
     
-
+    
     '''
         This function returns a list of absolute paths to the compiler binaries.
     '''
     def get_compilers_bin_path_list(self) -> list[str]:
         return self.__find_compilers_path()
     
-    
+
     '''
         This function return a dictionary of three values os_name, system_architecture and machine_type(AMD ... Intel ..)
     '''
@@ -45,6 +46,16 @@ class Artemis_UtilFunctionality:
         return {"os_name": os_name, "system_arch": system_arch, "machine_type": machine_type}
     
 
+    '''
+        This function returns a list of supported CPU architectures.
+    '''
+    def get_list_of_architecture(self) -> list[str]:
+        return self.__architecture
+
+
+    '''
+        This function is used to show error messages in colorized format.
+    '''
     def show_error_message(self, message: str, width: int) -> None:
         print(f"\n\033[1;47m {(width -6) * '-'}\033[0m \033[1;31mException\033[0m \033[1;47m{(width -6) * '-'}\033[0m")
         print(message)
