@@ -1,5 +1,8 @@
 import os
+
 from src.utils import Artemis_UtilFunctionality
+from src.color import Artemis_Color 
+
 
 class Artemis_CreateProject:
     def __init__(self):
@@ -16,14 +19,15 @@ class Artemis_CreateProject:
             self.__artemis_functions.show_error_message("No Compiler Selected", self.__compiler_max_name_width)
             return 
 
-        print(f"\n\033[1;47m {(self.__compiler_max_name_width - 10) * '-'}\033[0m \033[1;33mCompiler Selected\033[0m \033[1;47m{(self.__compiler_max_name_width - 10) * '-'}\033[0m\n")
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Compiler Selected{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value}\n")
+        
         space: int = len(str(len(self.__main_compiler))) - 1
 
         for counter, comp in enumerate(self.__main_compiler, start=1):
             if counter % self.__remainder == 0:
                 space -= 1
                 self.__remainder *= 10
-            print(f"\033[1;32m[{counter}]{space * ' '}\033[0m \033[1m-> \033[0m\033[1m{comp}\033[0m")
+            print(f"{Artemis_Color.GREEN.value}[{counter}]{space * ' '}{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {comp}{Artemis_Color.END_LINE.value}")
 
         # print(f"\n\033[1;47m{(self.__compiler_max_name_width * 2) * '-'}\033[0m")
         # print("\033[0m")
@@ -32,21 +36,20 @@ class Artemis_CreateProject:
     def __show_platform_selected(self) -> None:
         if not self.__main_platform:
             self.__artemis_functions.show_error_message("No compiler Selected", self.__compiler_max_name_width)
-            return 
-        
-        print(f"\n\033[1;47m {(self.__compiler_max_name_width - 10) * '-'}\033[0m \033[1;33mPlatform Selected\033[0m \033[1;47m{(self.__compiler_max_name_width - 10) * '-'}\033[0m\n")
+            return
+
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Platform Selected{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value}\n")
 
         for counter, plt in enumerate(self.__main_platform, start=1):
-            print(f"\033[1;32m[{counter}] \033[0m \033[1m-> \033[0m\033[1m{plt}\033[0m")
-    
+            print(f"{Artemis_Color.GREEN.value}[{counter}]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {plt}{Artemis_Color.END_LINE.value}")
 
     '''
         This function is used to get user input for selecting compilers.
         It displays the available compilers and prompts the user to select one or more by number.
     '''
-    def __user_compiler_selections(self, compiler_bin_path: list[str]) -> None:
+    def __user_compiler_selections(self, compiler_bin_path: list[str]) -> bool:
         try:
-            user_compiler_input: str | list[str] = input("\033[1;49;34mPlease Select Compiler or Compilers by Number [1 2 3 or <all>] : \033[0m").split(' ')
+            user_compiler_input: str | list[str] = input(f"{Artemis_Color.BLUE.value}Please Select Compiler or Compilers by Number [1 2 3 or <all>] : {Artemis_Color.END_LINE.value}").split(' ')
             integer_user_compiler_input: list[int] = list(map(int, user_compiler_input))
 
             if len(user_compiler_input) > 0:
@@ -57,28 +60,31 @@ class Artemis_CreateProject:
                 raise ValueError("Invalid compiler selection.")
         
         except ValueError as ve:
-            self.__artemis_functions.show_error_message(f"\033[0;49;37mError ValueError : {ve}\nPlease enter Integer values only in Compiler Selection. \033[0m", self.__compiler_max_name_width)
+            self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {ve}\nPlease enter Integer values only in Compiler Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
         except Exception as e:
-            self.__artemis_functions.show_error_message(f"\033[0;49;37mError ValueError : {e}\nPlease enter Integer values only in Compiler Selection. \033[0m", self.__compiler_max_name_width)
-
+            self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {e}\nPlease enter Integer values only in Compiler Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
+        else:
+            return True
+        return False
 
     '''
         Prompts the user to select a target platform architecture for compilation, allowing the choice of one or more architectures
         from a provided list or defaulting to the preconfigured platform if no selection is made.
     '''
     def __user_platform_selection(self) -> None:
-        plt_ans: str = input("\033[1;49;34mDo You Want to Enter other Arch for Compiler ? [Y|N] : \033[0m").lower()
+        plt_ans: str = input(f"{Artemis_Color.BLUE.value}Do You Want to Enter other Arch for Compiler ? [Y|N] : {Artemis_Color.END_LINE.value}").lower()
         
         if plt_ans == 'y':
-            print(f"\n\033[1;47m{(self.__compiler_max_name_width - 7) * '-'}\033[0m \033[1;33mPlatform List\033[0m \033[1;47m{(self.__compiler_max_name_width -8) * '-'}\033[0m\n")
+            print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 7) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Platform List{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width -8) * '-'}{Artemis_Color.END_LINE.value}\n")
+            
             len_arch_list = len(self.__artemis_functions.get_list_of_architecture())
-
             for counter, plt in enumerate(self.__artemis_functions.get_list_of_architecture(), start=1):
-                print(f"\033[1;32m[{counter}]\033[0m \033[1m-> \033[0m\033[1m{plt.upper()}\033[0m")
+                print(f"{Artemis_Color.GREEN.value}[{counter}]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {plt.upper()}{Artemis_Color.END_LINE.value}")
 
-            print(f"\n\033[1m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}\033[0m\n")
+            print(f"\n{Artemis_Color.WHITE.value}{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
+            
             try:
-                user_platform_selection: list[str] = input("\033[1;49;34mPlease Select Platform or platforms [1,2, or ..] : \033[0m").split(' ')
+                user_platform_selection: list[str] = input(f"{Artemis_Color.BLUE.value}Please Select Platform or platforms [1,2, or ..] : {Artemis_Color.END_LINE.value}").split(' ')
                 integer_user_platform_selection: list[int] = list(map(int, user_platform_selection))
 
                 if len(integer_user_platform_selection) > 0 and len(integer_user_platform_selection) <= len(self.__artemis_functions.get_list_of_architecture()):
@@ -87,12 +93,13 @@ class Artemis_CreateProject:
                     self.__show_platform_selected()
 
             except ValueError as ve:
-                self.__artemis_functions.show_error_message(f"\033[0;49;37mError ValueError : {ve}\nPlease enter Integer values only in Platform Selection. \033[0m", self.__compiler_max_name_width)
+                self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {ve}\nPlease enter Integer values only in Platform Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
             except Exception as e:
-                self.__artemis_functions.show_error_message(f"\033[0;49;37mError ValueError : {e}\nPlease enter Integer values only in Compiler Selection. \033[0m", self.__compiler_max_name_width)
+                self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {e}\nPlease enter Integer values only in Compiler Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
         else:
-            print(f"\n\033[1m{self.__compiler_max_name_width * 2 * '-'}\033[0m\n")
-            print(f"\033[1;32m[Info]\033[0m \033[1m->\033[0m \033[1m The project is \033[1;49;31mconfigured\033[0m to use the default platform \033[1;49;31m{self.__plt_config['machine_type']}\033[0m and the corresponding \033[1;49;31mcompiler\033[0m for this architecture.")
+            print(f"\n{Artemis_Color.WHITE.value}{self.__compiler_max_name_width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
+            
+            print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {Artemis_Color.WHITE.value} The project is {Artemis_Color.RED.value}configured{Artemis_Color.END_LINE.value} to use the default platform {Artemis_Color.RED.value}{self.__plt_config['machine_type']}{Artemis_Color.END_LINE.value}\n{10 * ' '} and the corresponding {Artemis_Color.RED.value}compiler{Artemis_Color.END_LINE.value} for this architecture.")
 
 
     '''
@@ -101,8 +108,8 @@ class Artemis_CreateProject:
     def print_compilers(self, compilers_bin_path) -> None:
         space: int = len(str(len(compilers_bin_path))) - 1
         self.__compiler_max_name_width = max(len(os.path.split(c)[1]) for c in compilers_bin_path)
-
-        print(f"\033[1;49;31m[Compiler Name] {(self.__compiler_max_name_width - 9) * ' '} \033[1;49;31m [Compiler Path]\033[0m\n\n\033[1;47m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}\033[0m\n")
+        
+        print(f"{Artemis_Color.RED.value}[Compiler Name] {(self.__compiler_max_name_width - 9) * ' '} {Artemis_Color.RED.value} [Compiler Path]\033[0m\n\n\033[1;47m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
 
         for counter, compiler in enumerate(compilers_bin_path, start=1):
             if counter % self.__remainder == 0:
@@ -110,10 +117,11 @@ class Artemis_CreateProject:
                 self.__remainder *= 10
             comp = os.path.split(compiler)
             comp_width = len(comp[1])
-            print(f"\033[1;32m[{counter}]\033[0m{space * ' '} \033[1m->\033[0m \033[1;33m{comp[1]}\033[0m{' ' * (self.__compiler_max_name_width - comp_width)}\033[1m {comp[0]}\033[0m")
+            
+            print(f"{Artemis_Color.GREEN.value}[{counter}]{Artemis_Color.END_LINE.value}{space * ' '} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}{comp[1]}{Artemis_Color.END_LINE.value}{' ' * (self.__compiler_max_name_width - comp_width)}{Artemis_Color.WHITE.value} {comp[0]}\033[0m")
 
-        print(f"\n\033[1m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}\033[0m\n")
-        self.__user_compiler_selections(compilers_bin_path)
+        print(f"\n{Artemis_Color.WHITE.value}{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
+        return self.__user_compiler_selections(compilers_bin_path)
 
 
     '''
@@ -134,11 +142,12 @@ class Artemis_CreateProject:
         set platform configuration for project
     '''
     def platform_configuration(self):
-        print(f"\n\033[1;47m{(self.__compiler_max_name_width - 14) * '-'}\033[0m \033[1;33mPlatform (Cpu Arch) Config\033[0m \033[1;47m{(self.__compiler_max_name_width - 14) * '-'}\033[0m\n")
-        
+        print(f"\n{Artemis_Color.WHITE.value}{(self.__compiler_max_name_width - 14) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Platform (Cpu Arch) Config{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}{(self.__compiler_max_name_width - 14) * '-'}{Artemis_Color.END_LINE.value}\n")
+
         if self.__plt_config['machine_type'].lower() in self.__artemis_functions.get_list_of_architecture():
-            print(f"\033[1;32m[Info]\033[0m \033[1m-> \033[0m \033[1mYour current \033[1;49;31mMachine Type\033[0m or [\033[1;49;31mCpu Architecture\033[0m] is \033[1;49;31m{self.__plt_config['machine_type']}\033[0m \033[0m")
-            print(f"\n\033[1m{self.__compiler_max_name_width * 2 * '-'}\033[0m\n")
+            print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {Artemis_Color.WHITE.value} Your current {Artemis_Color.RED.value}Machine Type{Artemis_Color.END_LINE.value} or [{Artemis_Color.RED.value}Cpu Architecture{Artemis_Color.END_LINE.value}] is {Artemis_Color.RED.value}{self.__plt_config['machine_type']}{Artemis_Color.END_LINE.value} {Artemis_Color.END_LINE.value}")
+            
+            print(f"\n{Artemis_Color.WHITE.value}{self.__compiler_max_name_width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
             self.__user_platform_selection()
 
 
@@ -147,4 +156,4 @@ class Artemis_CreateProject:
 
     
     def set_project_name(self):
-        print(f"\n\033[1;47m{(self.__compiler_max_name_width - 9) * '-'}\033[0m \033[1;33mSet Project Name\033[0m \033[1;47m{(self.__compiler_max_name_width - 9) * '-'}\033[0m\n")
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")
