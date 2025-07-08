@@ -1,11 +1,12 @@
 import argparse
 import os 
 
-from .utils import Artemis_UtilFunctionality
-from .create import Artemis_CreateProject
+from src.utils import Artemis_UtilFunctionality
+from src.create import Artemis_CreateProject
 
 class Artemis_ArgParser:
     def __init__(self) -> None:
+        
         self.__artemis_functions = Artemis_UtilFunctionality()
         self.__artemis_create_project = Artemis_CreateProject()
         self.__parser: argparse.ArgumentParser = argparse.ArgumentParser("This is Artemis Argument Parser")
@@ -35,9 +36,16 @@ class Artemis_ArgParser:
 
 
     def run(self) -> None:
+        print(self.parser)
         if self.parser.create:
             compilers_bin_path: list[str] = sorted(list(set(self.__artemis_functions.get_compilers_bin_path_list())))
             self.__artemis_create_project.print_compilers(compilers_bin_path)
         else:
             pass
+
+        if not self.parser.platform:
+            self.__artemis_create_project.platform_configuration()
+
+
+        
         

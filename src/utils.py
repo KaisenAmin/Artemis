@@ -9,13 +9,14 @@ class Artemis_UtilFunctionality:
         self.__env_path: list[str] = os.environ.get("PATH", '').split(os.pathsep)
         self.__default_compiler_names: list[str] = ['g++', 'gcc', 'cl', 'clang', 'x86_64-w64-mingw32', 'llvm', 'x86_64-w64-mingw32-clang++','cc', 'c++', 
             'x86_64-w64-mingw32-cc', 'x86_64-w64-mingw32-clang', 'x86_64-w64-mingw32-c++', 'mingw64', 'mingw32', 'x86_64-w64-mingw32-g++', 'x86_64-w64-mingw32-gcc', 'x86_64-w64-mingw32-gcc-ar', 'x86_64-w64-mingw32-gcc-nm', 'clang++']
-        self.__architecture: list[str] = ['x86_64', 'x86', 'arm64', 'arm']
+        self.__architecture: list[str] = ['x86_64', 'x86', 'arm64', 'arm', 'amd64', 'amd']
 
 
     def __find_compilers_path(self) -> list[str]:
         for path in self.__env_path:
             if any(value in path for value in self.__default_compiler_names) and path.endswith('bin'):
-                self.__compilers_bin_paths.append(path)
+                if os.path.exists(path):
+                    self.__compilers_bin_paths.append(path)
 
         for path in self.__compilers_bin_paths:
             list_of_compiler_names: list[str] = os.listdir(path)
@@ -26,8 +27,8 @@ class Artemis_UtilFunctionality:
                     self.__compilers_absolute_path.append(os.path.join(path, bin_name))
         
         return self.__compilers_absolute_path
-    
-    
+
+
     '''
         This function returns a list of absolute paths to the compiler binaries.
     '''
