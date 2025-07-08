@@ -11,7 +11,7 @@ class Artemis_ArgParser:
         self.__artemis_create_project = Artemis_CreateProject()
         self.__parser: argparse.ArgumentParser = argparse.ArgumentParser("This is Artemis Argument Parser")
         self.__add_arguments()
-        self.parser = self.__parser.parse_args()
+        self.args = self.__parser.parse_args()
 
 
         os.system("clear") if self.__artemis_functions.get_system_platform()['os_name'] == "Linux" else os.system("cls")
@@ -34,20 +34,21 @@ class Artemis_ArgParser:
         self.__parser.add_argument("-lib", nargs="+", help="With this flag you can add the library or libraries you need.", type=str)
         self.__parser.add_argument("-platform", nargs="+", help="This flag set platform that you want to compile on it", type=str)
 
+
     def __check_project_creation(self):
         try:
-            if self.parser.create:
+            if self.args.create:
                 compilers_bin_path: list[str] = sorted(list(set(self.__artemis_functions.get_compilers_bin_path_list())))
                 create_flag = self.__artemis_create_project.print_compilers(compilers_bin_path)
 
                 if not create_flag:
                     return
-                if not self.parser.platform:
+                if not self.args.platform:
                     self.__artemis_create_project.platform_configuration()
                 else:
                     pass 
-                if self.parser.name:
-                    self.__artemis_create_project.check_project_name(self.parser.name)
+                if self.args.name:
+                    self.__artemis_create_project.check_project_name(self.args.name)
                 else:
                     self.__artemis_create_project.set_project_name()
             else:
@@ -57,7 +58,7 @@ class Artemis_ArgParser:
 
 
     def run(self) -> None:
-        # print(self.parser)
+        # print(self.args)
         self.__check_project_creation()
 
         
