@@ -60,12 +60,13 @@ class Artemis_CreateProject:
                 raise ValueError("Invalid compiler selection.")
         
         except ValueError as ve:
-            self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {ve}\nPlease enter Integer values only in Compiler Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
+            self.__artemis_functions.show_error_message(f"Error ValueError : {ve}\nPlease enter Integer values only in Compiler Selection.", self.__compiler_max_name_width)
         except Exception as e:
-            self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {e}\nPlease enter Integer values only in Compiler Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
+            self.__artemis_functions.show_error_message(f"Error ValueError : {e}\nPlease enter Integer values only in Compiler Selection.", self.__compiler_max_name_width)
         else:
             return True
         return False
+
 
     '''
         Prompts the user to select a target platform architecture for compilation, allowing the choice of one or more architectures
@@ -93,9 +94,9 @@ class Artemis_CreateProject:
                     self.__show_platform_selected()
 
             except ValueError as ve:
-                self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {ve}\nPlease enter Integer values only in Platform Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
+                self.__artemis_functions.show_error_message(f"Error ValueError : {ve}\nPlease enter Integer values only in Platform Selection.", self.__compiler_max_name_width)
             except Exception as e:
-                self.__artemis_functions.show_error_message(f"{Artemis_Color.WHITE.value}Error ValueError : {e}\nPlease enter Integer values only in Compiler Selection. {Artemis_Color.END_LINE.value}", self.__compiler_max_name_width)
+                self.__artemis_functions.show_error_message(f"Error ValueError : {e}\nPlease enter Integer values only in Compiler Selection.", self.__compiler_max_name_width)
         else:
             print(f"\n{Artemis_Color.WHITE.value}{self.__compiler_max_name_width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
             
@@ -152,8 +153,13 @@ class Artemis_CreateProject:
 
 
     def check_project_name(self, project_name: str) -> None:
-        pass 
+        try:
+            if project_name[0].isdigit():
+                raise TypeError("Project name cannot start with a digit.")
+        except TypeError as te:
+            self.__artemis_functions.show_error_message(str(te), self.__compiler_max_name_width)
+        except Exception as e:
+            self.__artemis_functions.show_error_message(str(e), self.__compiler_max_name_width)
 
-    
     def set_project_name(self):
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")

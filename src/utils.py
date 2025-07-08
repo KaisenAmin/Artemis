@@ -1,6 +1,7 @@
 import os 
 import platform
 
+from src.color import Artemis_Color
 
 class Artemis_UtilFunctionality:
     def __init__(self):
@@ -58,6 +59,7 @@ class Artemis_UtilFunctionality:
         This function is used to show error messages in colorized format.
     '''
     def show_error_message(self, message: str, width: int) -> None:
-        print(f"\n\033[1;47m {(width -6) * '-'}\033[0m \033[1;31mException\033[0m \033[1;47m{(width -6) * '-'}\033[0m")
-        print(message)
-        print(f"\033[1;47m{width * 2 * '-'}\033[0m\n")
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(width -6) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.RED.value}Exception{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width -6) * '-'}{Artemis_Color.END_LINE.value}")
+        
+        print(f"{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
