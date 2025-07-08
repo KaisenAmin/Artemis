@@ -118,6 +118,13 @@ class Artemis_CreateProject:
         return self.__main_compiler
     
 
+    '''
+        This function is used to get the user-selected platforms.
+    '''
+    def get_platforms_user_selection(self) -> list[str]:
+        return self.__main_platform
+    
+
     def platform_configuration(self):
         print(f"\n\033[1;47m{(self.__compiler_max_name_width - 14) * '-'}\033[0m \033[1;33mPlatform (Cpu Arch) Config\033[0m \033[1;47m{(self.__compiler_max_name_width - 14) * '-'}\033[0m\n")
         
