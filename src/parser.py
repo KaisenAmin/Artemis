@@ -46,6 +46,9 @@ class Artemis_ArgParser:
         if not self.parser.platform:
             self.__artemis_create_project.platform_configuration()
 
+        if self.parser.create and not self.parser.name:
+            print("Should enter named")
+
 
         
         

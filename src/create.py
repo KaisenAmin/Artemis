@@ -29,7 +29,7 @@ class Artemis_CreateProject:
         # print("\033[0m")
     
 
-    def __show_platform_selected(self):
+    def __show_platform_selected(self) -> None:
         if not self.__main_platform:
             self.__artemis_functions.show_error_message("No compiler Selected", self.__compiler_max_name_width)
             return 
@@ -65,7 +65,7 @@ class Artemis_CreateProject:
         Prompts the user to select a target platform architecture for compilation, allowing the choice of one or more architectures
         from a provided list or defaulting to the preconfigured platform if no selection is made.
     '''
-    def __user_platform_selection(self):
+    def __user_platform_selection(self) -> None:
         plt_ans: str = input("\033[1;49;34mDo You Want to Enter other Arch for Compiler ? [Y|N] : \033[0m").lower()
         
         if plt_ans == 'y':
