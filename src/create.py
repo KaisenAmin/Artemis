@@ -39,6 +39,7 @@ class Artemis_CreateProject:
         for counter, plt in enumerate(self.__main_platform, start=1):
             print(f"\033[1;32m[{counter}] \033[0m \033[1m-> \033[0m\033[1m{plt}\033[0m")
     
+
     '''
         This function is used to get user input for selecting compilers.
         It displays the available compilers and prompts the user to select one or more by number.
@@ -139,3 +140,11 @@ class Artemis_CreateProject:
             print(f"\033[1;32m[Info]\033[0m \033[1m-> \033[0m \033[1mYour current \033[1;49;31mMachine Type\033[0m or [\033[1;49;31mCpu Architecture\033[0m] is \033[1;49;31m{self.__plt_config['machine_type']}\033[0m \033[0m")
             print(f"\n\033[1m{self.__compiler_max_name_width * 2 * '-'}\033[0m\n")
             self.__user_platform_selection()
+
+
+    def check_project_name(self, project_name: str) -> None:
+        pass 
+
+    
+    def set_project_name(self):
+        print(f"\n\033[1;47m{(self.__compiler_max_name_width - 9) * '-'}\033[0m \033[1;33mSet Project Name\033[0m \033[1;47m{(self.__compiler_max_name_width - 9) * '-'}\033[0m\n")

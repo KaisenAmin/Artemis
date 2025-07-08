@@ -4,9 +4,9 @@ import os
 from src.utils import Artemis_UtilFunctionality
 from src.create import Artemis_CreateProject
 
+
 class Artemis_ArgParser:
     def __init__(self) -> None:
-        
         self.__artemis_functions = Artemis_UtilFunctionality()
         self.__artemis_create_project = Artemis_CreateProject()
         self.__parser: argparse.ArgumentParser = argparse.ArgumentParser("This is Artemis Argument Parser")
@@ -34,21 +34,29 @@ class Artemis_ArgParser:
         self.__parser.add_argument("-lib", nargs="+", help="With this flag you can add the library or libraries you need.", type=str)
         self.__parser.add_argument("-platform", nargs="+", help="This flag set platform that you want to compile on it", type=str)
 
+    def __check_project_creation(self):
+        try:
+            if self.parser.create:
+                compilers_bin_path: list[str] = sorted(list(set(self.__artemis_functions.get_compilers_bin_path_list())))
+                self.__artemis_create_project.print_compilers(compilers_bin_path)
+
+                if not self.parser.platform:
+                    self.__artemis_create_project.platform_configuration()
+                else:
+                    pass 
+                if not self.parser.name:
+                    self.__artemis_create_project.check_project_name(self.parser.name)
+                else:
+                    self.__artemis_create_project.set_project_name()
+            else:
+                pass 
+        except Exception as e:
+            print(f"Error : {e}")
+
 
     def run(self) -> None:
         # print(self.parser)
-        if self.parser.create:
-            compilers_bin_path: list[str] = sorted(list(set(self.__artemis_functions.get_compilers_bin_path_list())))
-            self.__artemis_create_project.print_compilers(compilers_bin_path)
-        else:
-            pass
-
-        if not self.parser.platform:
-            self.__artemis_create_project.platform_configuration()
-
-        if self.parser.create and not self.parser.name:
-            print("Should enter named")
-
+        self.__check_project_creation()
 
         
         
