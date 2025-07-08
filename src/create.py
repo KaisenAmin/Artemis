@@ -71,16 +71,20 @@ class Artemis_CreateProject:
         if plt_ans == 'y':
             print(f"\n\033[1;47m{(self.__compiler_max_name_width - 7) * '-'}\033[0m \033[1;33mPlatform List\033[0m \033[1;47m{(self.__compiler_max_name_width -8) * '-'}\033[0m\n")
             len_arch_list = len(self.__artemis_functions.get_list_of_architecture())
+
             for counter, plt in enumerate(self.__artemis_functions.get_list_of_architecture(), start=1):
                 print(f"\033[1;32m[{counter}]\033[0m \033[1m-> \033[0m\033[1m{plt.upper()}\033[0m")
+
             print(f"\n\033[1m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}\033[0m\n")
             try:
                 user_platform_selection: list[str] = input("\033[1;49;34mPlease Select Platform or platforms [1,2, or ..] : \033[0m").split(' ')
                 integer_user_platform_selection: list[int] = list(map(int, user_platform_selection))
+
                 if len(integer_user_platform_selection) > 0 and len(integer_user_platform_selection) <= len(self.__artemis_functions.get_list_of_architecture()):
                     user_platform_selection = [self.__artemis_functions.get_list_of_architecture()[plt - 1] for plt in integer_user_platform_selection if plt >= 1 and plt <= len_arch_list]
                     self.__main_platform.extend(user_platform_selection)
                     self.__show_platform_selected()
+
             except ValueError as ve:
                 self.__artemis_functions.show_error_message(f"\033[0;49;37mError ValueError : {ve}\nPlease enter Integer values only in Platform Selection. \033[0m", self.__compiler_max_name_width)
             except Exception as e:
@@ -124,7 +128,10 @@ class Artemis_CreateProject:
     def get_platforms_user_selection(self) -> list[str]:
         return self.__main_platform
     
-
+    
+    '''
+        set platform configuration for project
+    '''
     def platform_configuration(self):
         print(f"\n\033[1;47m{(self.__compiler_max_name_width - 14) * '-'}\033[0m \033[1;33mPlatform (Cpu Arch) Config\033[0m \033[1;47m{(self.__compiler_max_name_width - 14) * '-'}\033[0m\n")
         
