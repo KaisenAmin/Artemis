@@ -109,7 +109,7 @@ class Artemis_CreateProject:
         space: int = len(str(len(compilers_bin_path))) - 1
         self.__compiler_max_name_width = max(len(os.path.split(c)[1]) for c in compilers_bin_path)
         
-        print(f"{Artemis_Color.RED.value}[Compiler Name] {(self.__compiler_max_name_width - 9) * ' '} {Artemis_Color.RED.value} [Compiler Path]\033[0m\n\n\033[1;47m{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
+        print(f"{Artemis_Color.RED.value}[Compiler Name] {(self.__compiler_max_name_width - 9) * ' '} {Artemis_Color.RED.value} [Compiler Path]{Artemis_Color.END_LINE.value}\n\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
 
         for counter, compiler in enumerate(compilers_bin_path, start=1):
             if counter % self.__remainder == 0:
