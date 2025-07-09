@@ -200,7 +200,7 @@ class Artemis_CreateProject:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")
 
         while True:
-            pro_name: str = input(f"{Artemis_Color.BLUE.value}Please Enter Project Name should not start with digit: {Artemis_Color.END_LINE.value}")
+            pro_name: str = input(f"{Artemis_Color.BLUE.value}Please enter project name (letters, digits, underscores; no spaces or special characters, must not start with digit): {Artemis_Color.END_LINE.value}")
             if self.check_project_name(pro_name):
                 break 
 

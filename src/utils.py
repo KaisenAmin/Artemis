@@ -8,8 +8,33 @@ class Artemis_UtilFunctionality:
         self.__compilers_bin_paths: list[str] = [] 
         self.__compilers_absolute_path: list[str] = []
         self.__env_path: list[str] = os.environ.get("PATH", '').split(os.pathsep)
-        self.__default_compiler_names: list[str] = ['g++', 'gcc', 'cl', 'clang', 'x86_64-w64-mingw32', 'llvm', 'x86_64-w64-mingw32-clang++','cc', 'c++', 
-            'x86_64-w64-mingw32-cc', 'x86_64-w64-mingw32-clang', 'x86_64-w64-mingw32-c++', 'mingw64', 'mingw32', 'x86_64-w64-mingw32-g++', 'x86_64-w64-mingw32-gcc', 'x86_64-w64-mingw32-gcc-ar', 'x86_64-w64-mingw32-gcc-nm', 'clang++']
+        self.__default_compiler_names: list[str] = [
+            'c89',                       # POSIX C compiler (Linux)
+            'c99',                       # POSIX C compiler (Linux)
+            'c89-gcc',                   # GCC with C89 standard (Linux)
+            'c99-gcc',                   # GCC with C99 standard (Linux)
+            'cc',                        # C compiler, often symlink to gcc or clang (Linux)
+            'c++',                       # C++ compiler, often symlink to g++ or clang++ (Linux)
+            'gcc',                       # GNU C compiler (Linux)
+            'g++',                       # GNU C++ compiler (Linux)
+            'gcc-13',                    # GNU C compiler, version 13 (Linux)
+            'g++-13',                    # GNU C++ compiler, version 13 (Linux)
+            'clang',                     # LLVM C/C++ compiler (Linux)
+            'clang++',                   # LLVM C++ compiler (Linux)
+            'clang-18',                  # LLVM C/C++ compiler, version 18 (Linux)
+            'clang++-18',                # LLVM C++ compiler, version 18 (Linux)
+            'x86_64-linux-gnu-gcc',      # GNU C compiler for x86_64 (Linux)
+            'x86_64-linux-gnu-g++',      # GNU C++ compiler for x86_64 (Linux)
+            'x86_64-linux-gnu-gcc-13',   # GNU C compiler for x86_64, version 13 (Linux)
+            'x86_64-linux-gnu-g++-13',   # GNU C++ compiler for x86_64, version 13 (Linux)
+            'cl',                        # Microsoft C/C++ compiler (Windows)
+            'x86_64-w64-mingw32-gcc',    # MinGW C compiler (Windows)
+            'x86_64-w64-mingw32-g++',    # MinGW C++ compiler (Windows)
+            'x86_64-w64-mingw32-clang',  # MinGW Clang C compiler (Windows)
+            'x86_64-w64-mingw32-clang++',# MinGW Clang C++ compiler (Windows)
+            'x86_64-w64-mingw32-cc',     # MinGW C compiler, alias (Windows)
+            'x86_64-w64-mingw32-c++',    # MinGW C++ compiler, alias (Windows)
+        ]
         self.__architecture: list[str] = ['x86_64', 'x86', 'arm64', 'arm', 'amd64', 'amd']
 
 
@@ -30,11 +55,25 @@ class Artemis_UtilFunctionality:
         return self.__compilers_absolute_path
 
 
+    def __find_compilers_linux(self) -> list[str]:
+        for file in os.listdir('/usr/bin'):
+            if any(value in file for value in self.__default_compiler_names) and os.access(file, os.X_OK):
+                self.__compilers_absolute_path.append(os.path.join("/usr/bin", file))
+        
+        print(self.__compilers_bin_paths)
+
+        return self.__compilers_absolute_path
+
     '''
         This function returns a list of absolute paths to the compiler binaries.
     '''
     def get_compilers_bin_path_list(self) -> list[str]:
-        return self.__find_compilers_path()
+        plt: dict[str : str] = self.get_system_platform()
+
+        if plt['os_name'] == 'Linux':
+            return self.__find_compilers_linux()
+        else:
+            return self.__find_compilers_path()
     
 
     '''
