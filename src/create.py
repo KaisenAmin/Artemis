@@ -8,6 +8,7 @@ class Artemis_CreateProject:
     def __init__(self):
         self.__main_compiler: list[str] = []
         self.__main_platform: list[str] = []
+        self.__project_name: str = ""
         self.__compiler_max_name_width: int = 0
         self.__artemis_functions = Artemis_UtilFunctionality()
         self.__plt_config: dict[str: str] = self.__artemis_functions.get_system_platform()
@@ -138,12 +139,26 @@ class Artemis_CreateProject:
     def get_platforms_user_selection(self) -> list[str]:
         return self.__main_platform
     
+
+    '''
+        This function is used to get project name
+    '''
+    def get_project_name(self) -> str:
+        return self.__project_name
     
+
+    '''
+        This function return compiler path max character width
+    '''
+    def get_compiler_max_name_width(self) -> int:
+        return self.__compiler_max_name_width
+    
+
     '''
         set platform configuration for project
     '''
     def platform_configuration(self):
-        print(f"\n{Artemis_Color.WHITE.value}{(self.__compiler_max_name_width - 14) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Platform (Cpu Arch) Config{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}{(self.__compiler_max_name_width - 14) * '-'}{Artemis_Color.END_LINE.value}\n")
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 14) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Platform (Cpu Arch) Config{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 14) * '-'}{Artemis_Color.END_LINE.value}\n")
 
         if self.__plt_config['machine_type'].lower() in self.__artemis_functions.get_list_of_architecture():
             print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {Artemis_Color.WHITE.value} Your current {Artemis_Color.RED.value}Machine Type{Artemis_Color.END_LINE.value} or [{Artemis_Color.RED.value}Cpu Architecture{Artemis_Color.END_LINE.value}] is {Artemis_Color.RED.value}{self.__plt_config['machine_type']}{Artemis_Color.END_LINE.value} {Artemis_Color.END_LINE.value}")
@@ -152,14 +167,42 @@ class Artemis_CreateProject:
             self.__user_platform_selection()
 
 
-    def check_project_name(self, project_name: str) -> None:
+    '''
+        Validate a project name to ensure it doesn't start with a digit and is a valid identifier. 
+    '''
+    def check_project_name(self, project_name: str) -> bool:
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Check Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width -10) * '-'}{Artemis_Color.END_LINE.value}\n")
         try:
+            if not project_name:
+                self.__artemis_functions.show_error_message("Project name cannot be empty.", self.__compiler_max_name_width)
+                return False
             if project_name[0].isdigit():
-                raise TypeError("Project name cannot start with a digit.")
-        except TypeError as te:
-            self.__artemis_functions.show_error_message(str(te), self.__compiler_max_name_width)
+                self.__artemis_functions.show_error_message("Project name cannot start with a digit. Invalid project name\nprovided. Please provide a valid name.", self.__compiler_max_name_width)
+                return False 
+            if not project_name.isidentifier():
+                self.__artemis_functions.show_error_message("Project name must be a valid identifier (letters, digits, underscores; no spaces or special characters).",
+                    self.__compiler_max_name_width
+                )
+                return False 
+            
+            self.__project_name = project_name
+            return True 
+
         except Exception as e:
             self.__artemis_functions.show_error_message(str(e), self.__compiler_max_name_width)
-
-    def set_project_name(self):
+            return False
+   
+    """
+        Prompt the user to input a project name and validate it.
+        Continues prompting until a valid project name is provided.
+    """
+    def set_project_name(self) -> None:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")
+
+        while True:
+            pro_name: str = input(f"{Artemis_Color.BLUE.value}Please Enter Project Name should not start with digit: {Artemis_Color.END_LINE.value}")
+            if self.check_project_name(pro_name):
+                break 
+
+                    
+        

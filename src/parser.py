@@ -48,7 +48,8 @@ class Artemis_ArgParser:
                 else:
                     pass 
                 if self.args.name:
-                    self.__artemis_create_project.check_project_name(self.args.name)
+                    if not self.__artemis_create_project.check_project_name(self.args.name):
+                        return
                 else:
                     self.__artemis_create_project.set_project_name()
             else:
