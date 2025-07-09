@@ -57,7 +57,7 @@ class Artemis_UtilFunctionality:
 
     def __find_compilers_linux(self) -> list[str]:
         for file in os.listdir('/usr/bin'):
-            if any(value in file for value in self.__default_compiler_names) and os.access(file, os.X_OK):
+            if any(value == file for value in self.__default_compiler_names) and os.access(f"/usr/bin/{file}", os.X_OK):
                 self.__compilers_absolute_path.append(os.path.join("/usr/bin", file))
         
         print(self.__compilers_bin_paths)

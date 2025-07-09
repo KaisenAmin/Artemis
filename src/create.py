@@ -186,6 +186,7 @@ class Artemis_CreateProject:
                 return False 
             
             self.__project_name = project_name
+            
             return True 
 
         except Exception as e:

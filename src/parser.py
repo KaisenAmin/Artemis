@@ -3,7 +3,7 @@ import os
 
 from src.utils import Artemis_UtilFunctionality
 from src.create import Artemis_CreateProject
-
+from src.color import Artemis_Color
 
 class Artemis_ArgParser:
     def __init__(self) -> None:
@@ -52,6 +52,7 @@ class Artemis_ArgParser:
                         return
                 else:
                     self.__artemis_create_project.set_project_name()
+                print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {Artemis_Color.WHITE.value} Your Project Name is [{Artemis_Color.RED.value}{self.__artemis_create_project.get_project_name()}]{Artemis_Color.END_LINE.value}")
             else:
                 pass 
         except Exception as e:
