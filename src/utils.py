@@ -9,31 +9,77 @@ class Artemis_UtilFunctionality:
         self.__compilers_absolute_path: list[str] = []
         self.__env_path: list[str] = os.environ.get("PATH", '').split(os.pathsep)
         self.__default_compiler_names: list[str] = [
-            'c89',                       # POSIX C compiler (Linux)
-            'c99',                       # POSIX C compiler (Linux)
-            'c89-gcc',                   # GCC with C89 standard (Linux)
-            'c99-gcc',                   # GCC with C99 standard (Linux)
-            'cc',                        # C compiler, often symlink to gcc or clang (Linux)
-            'c++',                       # C++ compiler, often symlink to g++ or clang++ (Linux)
-            'gcc',                       # GNU C compiler (Linux)
-            'g++',                       # GNU C++ compiler (Linux)
-            'gcc-13',                    # GNU C compiler, version 13 (Linux)
-            'g++-13',                    # GNU C++ compiler, version 13 (Linux)
-            'clang',                     # LLVM C/C++ compiler (Linux)
-            'clang++',                   # LLVM C++ compiler (Linux)
-            'clang-18',                  # LLVM C/C++ compiler, version 18 (Linux)
-            'clang++-18',                # LLVM C++ compiler, version 18 (Linux)
-            'x86_64-linux-gnu-gcc',      # GNU C compiler for x86_64 (Linux)
-            'x86_64-linux-gnu-g++',      # GNU C++ compiler for x86_64 (Linux)
-            'x86_64-linux-gnu-gcc-13',   # GNU C compiler for x86_64, version 13 (Linux)
-            'x86_64-linux-gnu-g++-13',   # GNU C++ compiler for x86_64, version 13 (Linux)
-            'cl',                        # Microsoft C/C++ compiler (Windows)
-            'x86_64-w64-mingw32-gcc',    # MinGW C compiler (Windows)
-            'x86_64-w64-mingw32-g++',    # MinGW C++ compiler (Windows)
-            'x86_64-w64-mingw32-clang',  # MinGW Clang C compiler (Windows)
-            'x86_64-w64-mingw32-clang++',# MinGW Clang C++ compiler (Windows)
-            'x86_64-w64-mingw32-cc',     # MinGW C compiler, alias (Windows)
-            'x86_64-w64-mingw32-c++',    # MinGW C++ compiler, alias (Windows)
+            # Native GCC/G++ compilers
+            'gcc', 'g++',
+            'gcc-9', 'g++-9',
+            'gcc-10', 'g++-10',
+            'gcc-11', 'g++-11',
+            'gcc-12', 'g++-12',
+            'gcc-13', 'g++-13',
+            'gcc-14', 'g++-14',
+            # POSIX-compliant and generic C compilers
+            'c89', 'c99', 'c89-gcc', 'c99-gcc', 'cc', 'c++',
+            # Clang compilers (from /usr/bin)
+            'clang', 'clang++', 'clang-18', 'clang++-18',
+            # Cross-compilers for key architectures (GCC/G++ versions 9–14)
+            'aarch64-linux-gnu-gcc', 'aarch64-linux-gnu-g++',
+            'aarch64-linux-gnu-gcc-9', 'aarch64-linux-gnu-g++-9',
+            'aarch64-linux-gnu-gcc-10', 'aarch64-linux-gnu-g++-10',
+            'aarch64-linux-gnu-gcc-11', 'aarch64-linux-gnu-g++-11',
+            'aarch64-linux-gnu-gcc-12', 'aarch64-linux-gnu-g++-12',
+            'aarch64-linux-gnu-gcc-13', 'aarch64-linux-gnu-g++-13',
+            'aarch64-linux-gnu-gcc-14', 'aarch64-linux-gnu-g++-14',
+            'arm-linux-gnueabihf-gcc', 'arm-linux-gnueabihf-g++',
+            'arm-linux-gnueabihf-gcc-9', 'arm-linux-gnueabihf-g++-9',
+            'arm-linux-gnueabihf-gcc-10', 'arm-linux-gnueabihf-g++-10',
+            'arm-linux-gnueabihf-gcc-11', 'arm-linux-gnueabihf-g++-11',
+            'arm-linux-gnueabihf-gcc-12', 'arm-linux-gnueabihf-g++-12',
+            'arm-linux-gnueabihf-gcc-13', 'arm-linux-gnueabihf-g++-13',
+            'arm-linux-gnueabihf-gcc-14', 'arm-linux-gnueabihf-g++-14',
+            'i686-linux-gnu-gcc', 'i686-linux-gnu-g++',
+            'i686-linux-gnu-gcc-9', 'i686-linux-gnu-g++-9',
+            'i686-linux-gnu-gcc-10', 'i686-linux-gnu-g++-10',
+            'i686-linux-gnu-gcc-11', 'i686-linux-gnu-g++-11',
+            'i686-linux-gnu-gcc-12', 'i686-linux-gnu-g++-12',
+            'i686-linux-gnu-gcc-13', 'i686-linux-gnu-g++-13',
+            'i686-linux-gnu-gcc-14', 'i686-linux-gnu-g++-14',
+            'x86-64-linux-gnu-gcc', 'x86-64-linux-gnu-g++',
+            'x86-64-linux-gnu-gcc-9', 'x86-64-linux-gnu-g++-9',
+            'x86-64-linux-gnu-gcc-10', 'x86-64-linux-gnu-g++-10',
+            'x86-64-linux-gnu-gcc-11', 'x86-64-linux-gnu-g++-11',
+            'x86-64-linux-gnu-gcc-12', 'x86-64-linux-gnu-g++-12',
+            'x86-64-linux-gnu-gcc-13', 'x86-64-linux-gnu-g++-13',
+            'x86-64-linux-gnu-gcc-14', 'x86-64-linux-gnu-g++-14',
+            'mips64el-linux-gnuabi64-gcc', 'mips64el-linux-gnuabi64-g++',
+            'mips64el-linux-gnuabi64-gcc-9', 'mips64el-linux-gnuabi64-g++-9',
+            'mips64el-linux-gnuabi64-gcc-10', 'mips64el-linux-gnuabi64-g++-10',
+            'mips64el-linux-gnuabi64-gcc-11', 'mips64el-linux-gnuabi64-g++-11',
+            'mips64el-linux-gnuabi64-gcc-12', 'mips64el-linux-gnuabi64-g++-12',
+            'mips64el-linux-gnuabi64-gcc-13', 'mips64el-linux-gnuabi64-g++-13',
+            'mips64el-linux-gnuabi64-gcc-14', 'mips64el-linux-gnuabi64-g++-14',
+            'riscv64-linux-gnu-gcc', 'riscv64-linux-gnu-g++',
+            'riscv64-linux-gnu-gcc-9', 'riscv64-linux-gnu-g++-9',
+            'riscv64-linux-gnu-gcc-10', 'riscv64-linux-gnu-g++-10',
+            'riscv64-linux-gnu-gcc-11', 'riscv64-linux-gnu-g++-11',
+            'riscv64-linux-gnu-gcc-12', 'riscv64-linux-gnu-g++-12',
+            'riscv64-linux-gnu-gcc-13', 'riscv64-linux-gnu-g++-13',
+            'riscv64-linux-gnu-gcc-14', 'riscv64-linux-gnu-g++-14',
+            # Multilib compilers
+            'gcc-multilib', 'g++-multilib',
+            'gcc-9-multilib', 'g++-9-multilib',
+            'gcc-10-multilib', 'g++-10-multilib',
+            'gcc-11-multilib', 'g++-11-multilib',
+            'gcc-12-multilib', 'g++-12-multilib',
+            'gcc-13-multilib', 'g++-13-multilib',
+            'gcc-14-multilib', 'g++-14-multilib',
+            # Windows compilers (MinGW and MSVC)
+            'cl',
+            'x86_64-w64-mingw32-gcc',
+            'x86_64-w64-mingw32-g++',
+            'x86_64-w64-mingw32-clang',
+            'x86_64-w64-mingw32-clang++',
+            'x86_64-w64-mingw32-cc',
+            'x86_64-w64-mingw32-c++',
         ]
         self.__architecture: list[str] = ['x86_64', 'x86', 'arm64', 'arm', 'amd64', 'amd']
 
@@ -60,8 +106,6 @@ class Artemis_UtilFunctionality:
             if any(value == file for value in self.__default_compiler_names) and os.access(f"/usr/bin/{file}", os.X_OK):
                 self.__compilers_absolute_path.append(os.path.join("/usr/bin", file))
         
-        print(self.__compilers_bin_paths)
-
         return self.__compilers_absolute_path
 
     '''
