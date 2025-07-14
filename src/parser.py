@@ -21,47 +21,87 @@ class Artemis_ArgParser:
         Example -> python main.py -name test -projectpath .. -compiler .. --description "prompt"
     '''
     def __add_arguments(self) -> None:
-        self.__parser.add_argument("-name", help="This flag set project name", type=str)
-        self.__parser.add_argument("-projectpath", help="This flag set project creation path [you can use also . .. ]", type=str)
-        self.__parser.add_argument("-compiler", help="This flag set compiler that is wich exists in path of system", type=str)
-        self.__parser.add_argument("-description", help="This flag set your general descriptions about the project", type=str)
-        self.__parser.add_argument("-compilerbinpath", help="This flag set compiler path if there is no default compiler in environ variables.", type=str)
-        self.__parser.add_argument("-compilerincludepath", help="This flag set compiler include path.", type=str)
-        self.__parser.add_argument("-compilerlibpath", help="This flag set compiler lib or dll path")
-        self.__parser.add_argument("-create", action="store_true", help="This flag, which defaults to true, is used to create the project.")
-        self.__parser.add_argument("-run", action="store_true", help="This flag, which defaults to true, is used to compile and run the project.")
-        self.__parser.add_argument("-build", action="store_true", help="This flag, which defaults to true, is used to compile the project.")
-        self.__parser.add_argument("-lib", nargs="+", help="With this flag you can add the library or libraries you need.", type=str)
-        self.__parser.add_argument("-platform", nargs="+", help="This flag set platform that you want to compile on it", type=str)
+        # Core project settings
+        self.__parser.add_argument("-name", help="Set project name (must start with letter/underscore, no spaces).", type=str)
+        self.__parser.add_argument("-projectpath", help="Directory in which to create or operate on the project", type=str)
+        self.__parser.add_argument("-description", help="Human-readable description for the project.", type=str)
+
+        # Compiler & platform selection
+        self.__parser.add_argument("-compiler", help="Compiler executable to use (e.g. gcc-14, clang, cl, aarch64-linux-gnu-gcc).", type=str)
+        self.__parser.add_argument("-compilerbinpath", help="Explicit path to a compiler bin/ directory if not on PATH.", type=str)
+        self.__parser.add_argument("-compilerincludepath", help="Extra include (-I) directories for compiler.", type=str)
+        self.__parser.add_argument("-compilerlibpath", help="Extra library (-L) directories for compiler.", type=str)
+        self.__parser.add_argument("-platform", nargs="+", help="Target architecture(s), e.g. x86_64, arm64, riscv64.", type=str)
+        self.__parser.add_argument("-lib", nargs="+", help="Libraries to link against, e.g. pthread, stdc++.", type=str)
+
+        # Primary actions
+        self.__parser.add_argument("-create", action="store_true", help="Scaffold a new Artemis project.")
+        self.__parser.add_argument("-build", action="store_true", help="Compile the project.")
+        self.__parser.add_argument("-run", action="store_true", help="Compile (if needed) and run the project.")
+
+        # Advanced build options
+        self.__parser.add_argument("-jobs", help="Number of parallel compilation jobs (like make -jN).", type=int, default=1)
+        self.__parser.add_argument("--use-cmake", action="store_true", help="Generate and use a CMakeLists.txt instead of hand-rolled commands.")
+        self.__parser.add_argument("--use-meson", action="store_true", help="Generate and use a meson.build instead of hand-rolled commands.")
+        self.__parser.add_argument("--matrix-build", nargs="*", help="Build for multiple compiler/platform combos in one go (specify as list or via config).", type=str)
+
+        # Code quality & testing
+        self.__parser.add_argument("--analyze", action="store_true", help="Run static analysis (clang-tidy, cppcheck) after build.")
+        self.__parser.add_argument("--format", action="store_true", help="Auto-format source tree with clang-format or astyle.")
+        self.__parser.add_argument("--create-test", metavar="TEST_NAME", help="Scaffold a unit-test stub (Google Test, Catch2, etc.).", type=str)
+
+        # Docs, packaging & CI
+        self.__parser.add_argument("--doc", action="store_true", help="Generate documentation (Doxygen/Sphinx) for the current project.")
+        self.__parser.add_argument("--package", action="store_true", help="Package the build output (zip/tar, or DEB/RPM).")
+        self.__parser.add_argument("--version-major", help="Major version to stamp in packages or binary metadata.", type=int)
+        self.__parser.add_argument("--version-minor", help="Minor version to stamp in packages or binary metadata.", type=int)
+
+        # Containerization & reproducible builds
+        self.__parser.add_argument("--dockerize", action="store_true", help="Build inside a Docker container with the selected toolchain.")
+
+        # Miscellaneous
+        self.__parser.add_argument("--interactive", action="store_true", help="Launch an interactive TUI (using rich/prompt_toolkit) for choosing options.")
+        self.__parser.add_argument("--watch", action="store_true", help="Watch source files and re-build on changes.")
+        self.__parser.add_argument("--ai-init", metavar="PROMPT", help="Use AI to generate boilerplate code from a natural-language prompt.", type=str)
 
 
+    """
+        Handle the project creation workflow:
+        - Detect available compilers
+        - Prompt for compiler selection
+        - Configure platform if none provided
+        - Validate or prompt for project name
+        - Print final project name
+    """
     def __check_project_creation(self):
+        if not self.args.create:
+            return
+
         try:
-            if self.args.create:
-                compilers_bin_path: list[str] = sorted(list(set(self.__artemis_functions.get_compilers_bin_path_list())))
-                create_flag = self.__artemis_create_project.print_compilers(compilers_bin_path)
+            # Detect available compilers
+            compilers = sorted(set(self.__artemis_functions.get_compilers_bin_path_list()))
+            if not self.__artemis_create_project.print_compilers(compilers):
+                return
 
-                if not create_flag:
-                    return
-                if not self.args.platform:
-                    self.__artemis_create_project.platform_configuration()
-                else:
-                    pass 
-                if self.args.name:
-                    if not self.__artemis_create_project.check_project_name(self.args.name):
-                        return
-                else:
-                    self.__artemis_create_project.set_project_name()
-                print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}-> {Artemis_Color.WHITE.value} Your Project Name is [{Artemis_Color.RED.value}{self.__artemis_create_project.get_project_name()}]{Artemis_Color.END_LINE.value}")
-            else:
-                pass 
-        except Exception as e:
-            print(f"Error : {e}")
+            # Platform configuration
+            if not self.args.platform:
+                self.__artemis_create_project.platform_configuration()
+
+            base_path = self.args.projectpath if self.args.projectpath else None
+            name = self.args.name if self.args.name else None
+            self.__artemis_create_project.run_create(base_path=base_path, name=name)
+
+        except Exception as err:
+            print(f"Error during project creation: {err}")
 
 
+    """
+        Entry point: handle create, build, run in sequence.
+    """
     def run(self) -> None:
-        # print(self.args)
         self.__check_project_creation()
 
-        
-        
+        if self.args.build:
+            pass
+        if self.args.run:
+            pass

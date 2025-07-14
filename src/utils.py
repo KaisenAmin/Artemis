@@ -8,6 +8,7 @@ class Artemis_UtilFunctionality:
         self.__compilers_bin_paths: list[str] = [] 
         self.__compilers_absolute_path: list[str] = []
         self.__env_path: list[str] = os.environ.get("PATH", '').split(os.pathsep)
+        
         self.__default_compiler_names: list[str] = [
             # Native GCC/G++ compilers
             'gcc', 'g++',
@@ -17,6 +18,8 @@ class Artemis_UtilFunctionality:
             'gcc-12', 'g++-12',
             'gcc-13', 'g++-13',
             'gcc-14', 'g++-14',
+            'mingw64', 'mingw32',
+            'ucrt64',
             # POSIX-compliant and generic C compilers
             'c89', 'c99', 'c89-gcc', 'c99-gcc', 'cc', 'c++',
             # Clang compilers (from /usr/bin)
@@ -94,10 +97,10 @@ class Artemis_UtilFunctionality:
             list_of_compiler_names: list[str] = os.listdir(path)
 
             for bin_name in list_of_compiler_names:
-                os_extension: bool = bin_name.endswith('.exe')
+                os_extension: bool = os.access(os.path.join(path, bin_name), os.X_OK)
                 if any(name + ".exe" == bin_name if os_extension else name == bin_name for name in self.__default_compiler_names):
                     self.__compilers_absolute_path.append(os.path.join(path, bin_name))
-        
+            
         return self.__compilers_absolute_path
 
 

@@ -54,7 +54,7 @@ This creates a project named `test_project` for the `arm64` architecture using `
 ## Requirements
 - Python 3.6+
 - C/C++ compilers (e.g., GCC, Clang, MinGW for Windows)
-- Linux (e.g., Kaisen Linux) or Windows
+- Linux (e.g., Debian Linux ...) or Windows x86_64
 
 ## Future Enhancements
 - Dependency solver for C/C++ libraries.

@@ -171,7 +171,7 @@ class Artemis_CreateProject:
         Validate a project name to ensure it doesn't start with a digit and is a valid identifier. 
     '''
     def check_project_name(self, project_name: str) -> bool:
-        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Check Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width -10) * '-'}{Artemis_Color.END_LINE.value}\n")
+        # print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Check Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width -10) * '-'}{Artemis_Color.END_LINE.value}\n")
         try:
             if not project_name:
                 self.__artemis_functions.show_error_message("Project name cannot be empty.", self.__compiler_max_name_width)
@@ -197,13 +197,98 @@ class Artemis_CreateProject:
         Prompt the user to input a project name and validate it.
         Continues prompting until a valid project name is provided.
     """
-    def set_project_name(self) -> None:
+    def set_project_name(self, name: str | None = None) -> str:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")
 
+        candidate = name
         while True:
-            pro_name: str = input(f"{Artemis_Color.BLUE.value}Please enter project name (letters, digits, underscores; no spaces or special characters, must not start with digit): {Artemis_Color.END_LINE.value}")
-            if self.check_project_name(pro_name):
-                break 
+            if candidate and self.check_project_name(candidate):
+                break
+            candidate = input(f"{Artemis_Color.BLUE.value}Enter project name (letters/digits/_, no leading digit): {Artemis_Color.END_LINE.value}").strip()
+        
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.WHITE.value} Your Project Name is {Artemis_Color.RED.value}[{self.get_project_name()}]{Artemis_Color.END_LINE.value}")
+            
+        self.__project_name = candidate
+        return candidate
 
                     
-        
+    """
+        Determine base directory for project creation.
+        If base_path is provided, ensure it exists; otherwise prompt the user.
+        Returns the absolute base path.
+    """ 
+    def set_project_path(self, base_path: str | None = None) -> str:
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Path{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")
+
+        target = base_path
+        while True:
+            if target and os.path.isdir(target):
+                return os.path.abspath(target)
+
+            if target:
+                try:
+                    os.makedirs(target, exist_ok=True)
+                    return os.path.abspath(target)
+                except Exception as e:
+                    self.__artemis_functions.show_error_message(f"Failed to create path '{target}': {e}",self.__compiler_max_name_width)
+
+            target = input(f"{Artemis_Color.BLUE.value}Enter base path for project (will be created if needed):{Artemis_Color.END_LINE.value}").strip()
+
+            if not target:
+                self.__artemis_functions.show_error_message("Project base path cannot be empty.", self.__compiler_max_name_width)
+                target = None
+                continue
+
+    """
+        Scaffold the directory layout inside current working directory:
+        src/, include/, lib/, bin/, build/, tests/, docs/, third_party/{include,lib,bin}.
+    """
+    def create_project_structure(self) -> None:
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 11) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Project Path Details{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 11) * '-'}{Artemis_Color.END_LINE.value}\n")
+        dirs = [
+            'src', 'include', 'lib', 'bin', 'build',
+            'tests', 'docs',
+            os.path.join('third_party', 'include'),
+            os.path.join('third_party', 'lib'),
+            os.path.join('third_party', 'bin')
+        ]
+        for d in dirs:
+            os.makedirs(d, exist_ok=True)
+
+        main_cpp = os.path.join('src', 'main.cpp')
+        if not os.path.exists(main_cpp):
+            with open(main_cpp, 'w') as f:
+                f.write("""#include <iostream>
+
+int main() {
+    std::cout << \"Hello, Artemis!\" << std::endl;
+    return 0;
+}
+""")
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} Project structure created.")
+
+
+    """
+        Full create workflow:
+        1. Determine base path
+        2. Determine project name
+        3. Create project root directory named after project_name under base path
+        4. Scaffold structure inside that directory
+        5. Print summary
+    """
+    def run_create(self, base_path: str | None = None, name: str | None = None) -> None:
+        base = self.set_project_path(base_path)
+        project_name = self.set_project_name(name)
+        project_dir = os.path.join(base, project_name)
+
+        try:
+            os.makedirs(project_dir, exist_ok=True)
+            os.chdir(project_dir)
+        except Exception as e:
+            print(f"Error: could not create project directory '{project_dir}': {e}")
+            return
+      
+        self.create_project_structure()
+
+        cwd = os.getcwd()
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} Project '{project_name}' created at {cwd}")
