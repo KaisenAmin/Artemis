@@ -206,7 +206,9 @@ class Artemis_CreateProject:
                 break
             candidate = input(f"{Artemis_Color.BLUE.value}Enter project name (letters/digits/_, no leading digit): {Artemis_Color.END_LINE.value}").strip()
         
-        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.WHITE.value} Your Project Name is {Artemis_Color.RED.value}[{self.get_project_name()}]{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.WHITE.value}{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
+
+        print(f"\n{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.WHITE.value} Your Project Name is {Artemis_Color.RED.value}[{self.get_project_name()}]{Artemis_Color.END_LINE.value}")
             
         self.__project_name = candidate
         return candidate
