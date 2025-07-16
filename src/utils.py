@@ -153,5 +153,5 @@ class Artemis_UtilFunctionality:
     def show_error_message(self, message: str, width: int) -> None:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(width -6) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.RED.value}Exception{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width -6) * '-'}{Artemis_Color.END_LINE.value}")
         
-        print(f"{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}")
+        print(f"\n{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}\n")
         print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
