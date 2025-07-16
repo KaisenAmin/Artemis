@@ -89,7 +89,8 @@ class Artemis_ArgParser:
 
             base_path = self.args.projectpath if self.args.projectpath else None
             name = self.args.name if self.args.name else None
-            self.__artemis_create_project.run_create(base_path=base_path, name=name)
+            description = self.args.description if self.args.description else None
+            self.__artemis_create_project.run_create(base_path=base_path, name=name, description=description)
 
         except Exception as err:
             print(f"Error during project creation: {err}")

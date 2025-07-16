@@ -263,7 +263,7 @@ class Artemis_CreateProject:
         Scaffold the directory layout inside current working directory:
         src/, include/, lib/, bin/, build/, tests/, docs/, third_party/{include,lib,bin}.
     """
-    def create_project_structure(self) -> None:
+    def create_project_structure(self, description: str | None = None) -> None:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 11) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Project Path Details{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 11) * '-'}{Artemis_Color.END_LINE.value}\n")
         dirs = [
             'src', 'include', 'lib', 'bin', 'build',
@@ -287,6 +287,30 @@ int main() {
 """)
         print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Project structure {Artemis_Color.RED.value}created{Artemis_Color.END_LINE.value}.")
 
+        # Generate README.md with description
+        readme_content = f"""# {self.__project_name}
+
+{description or f"A C++ project created with Artemis."}
+
+## Project Structure
+- `src/` - Source files
+- `include/` - Header files  
+- `lib/` - Library files
+- `bin/` - Executables
+- `build/` - Build artifacts
+- `tests/` - Test files
+- `docs/` - Documentation
+- `third_party/` - External dependencies
+
+## Building
+```bash
+# Add build instructions here
+```
+"""
+        
+        with open('README.md', 'w') as f:
+            f.write(readme_content)
+
 
     """
         Full create workflow:
@@ -296,7 +320,7 @@ int main() {
         4. Scaffold structure inside that directory
         5. Print summary
     """
-    def run_create(self, base_path: str | None = None, name: str | None = None) -> None:
+    def run_create(self, base_path: str | None = None, name: str | None = None, description: str | None = None) -> None:
         base = self.set_project_path(base_path)
         project_name = self.set_project_name(name)
         project_dir = os.path.join(base, project_name)
@@ -308,7 +332,7 @@ int main() {
             print(f"Error: could not create project directory '{project_dir}': {e}")
             return
       
-        self.create_project_structure()
+        self.create_project_structure(description=description)
 
         cwd = os.getcwd()
         print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value}{Artemis_Color.WHITE.value} ->{Artemis_Color.END_LINE.value} Project '{Artemis_Color.RED.value}{project_name}{Artemis_Color.END_LINE.value}' created at {Artemis_Color.RED.value}{cwd}{Artemis_Color.END_LINE.value}")
