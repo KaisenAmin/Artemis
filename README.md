@@ -37,13 +37,33 @@ python main.py -name my_project -compiler gcc-14 -platform x86_64 -create
 ```
 - **Flags**:
   - `-name`: Set project name (e.g., `my_project`).
-  - `-compiler`: Specify compiler (e.g., `gcc-14`, `clang`).
+  - `-description`: Human-readable description for the project (optional).
+  - `-compiler`: Specify compiler(s) - can specify multiple (e.g., `gcc g++ clang`).
+  - `-compilerbinpath`: Explicit path to a compiler bin/ directory if not on PATH.
   - `-platform`: Target architecture (e.g., `x86_64`, `arm64`).
   - `-create`: Create a new project.
   - `-build`: Compile the project.
   - `-run`: Compile and run the project.
   - `-lib`: Add libraries (e.g., `-lib pthread stdc++`).
   - `-projectpath`: Set project directory (e.g., `.` or `..`).
+
+Examples:
+```bash
+# Select specific compilers
+python main.py -create -compiler gcc g++
+
+# Use custom compiler path
+python main.py -create -compilerbinpath /usr/local/bin
+
+# Combine both
+python main.py -create -compiler gcc clang -compilerbinpath /custom/path
+
+# Multiple compilers with custom path
+python main.py -create -compiler gcc g++ i686-linux-gnu-g++ -compilerbinpath /msys64/mingw64/bin
+
+# Create project with description
+python main.py -create -name my_project -description "A C++ project for testing" -compiler gcc-14
+```
 
 Example:
 ```bash

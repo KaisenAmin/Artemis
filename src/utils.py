@@ -130,6 +130,25 @@ class Artemis_UtilFunctionality:
     
 
     '''
+        This function returns a list of compiler binaries from a specific path.
+    '''
+    def get_compilers_from_path(self, path: str) -> list[str]:
+        compilers = []
+        if not os.path.exists(path):
+            return compilers
+            
+        try:
+            for file in os.listdir(path):
+                file_path = os.path.join(path, file)
+                if os.access(file_path, os.X_OK):
+                    if any(name + ".exe" == file if os.name == 'nt' else name == file for name in self.__default_compiler_names):
+                        compilers.append(file_path)
+        except Exception:
+            pass
+            
+        return compilers
+
+    '''
         This function return a dictionary of three values os_name, system_architecture and machine_type(AMD ... Intel ..)
     '''
     def get_system_platform(self) -> SystemPlatform:
@@ -155,3 +174,13 @@ class Artemis_UtilFunctionality:
         
         print(f"\n{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}\n")
         print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
+
+
+    '''
+        This function is used to show warning messages in colorized format.
+    '''
+    def show_warning_message(self, message: str, width: int) -> None:
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(width -6) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Warning{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width -6) * '-'}{Artemis_Color.END_LINE.value}")
+        
+        print(f"\n{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}\n")
+        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width - 1) * 2 * '-'}{Artemis_Color.END_LINE.value}\n")

@@ -9,7 +9,7 @@ class Artemis_CreateProject:
         self.__main_compiler: list[str] = []
         self.__main_platform: list[str] = []
         self.__project_name: str = ""
-        self.__compiler_max_name_width: int = 0
+        self.__compiler_max_name_width: int = 60  # Set minimum width
         self.__artemis_functions = Artemis_UtilFunctionality()
         self.__plt_config: SystemPlatform = self.__artemis_functions.get_system_platform()
         self.__remainder: int = 10
@@ -126,7 +126,19 @@ class Artemis_CreateProject:
         space: int = len(str(len(compilers_bin_path))) - 1
         self.__compiler_max_name_width = max(len(os.path.split(c)[1]) for c in compilers_bin_path)
         
-        print(f"{Artemis_Color.RED.value}[Compiler Name] {(self.__compiler_max_name_width - 9) * ' '} {Artemis_Color.RED.value} [Compiler Path]{Artemis_Color.END_LINE.value}\n\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
+        # Set minimum width for better formatting
+        min_width = 60
+        self.__compiler_max_name_width = max(self.__compiler_max_name_width, min_width)
+        
+        # Calculate the actual display width needed for the dash line
+        # Account for: [Compiler Name] + spaces + [Compiler Path] + some padding
+        display_width = max(
+            len("[Compiler Name]") + self.__compiler_max_name_width + len("[Compiler Path]") + 20,  # Header width
+            max(len(f"[{i}] -> {os.path.split(c)[1]} {c.split(os.sep)[-2] if len(c.split(os.sep)) > 1 else ''}") for i, c in enumerate(compilers_bin_path, 1)),  # Max row width
+            min_width * 2  # Minimum display width
+        )
+        
+        print(f"{Artemis_Color.RED.value}[Compiler Name] {(self.__compiler_max_name_width - 9) * ' '} {Artemis_Color.RED.value} [Compiler Path]{Artemis_Color.END_LINE.value}\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{display_width * '-'}{Artemis_Color.END_LINE.value}\n")
 
         for counter, compiler in enumerate(compilers_bin_path, start=1):
             if counter % self.__remainder == 0:
@@ -167,6 +179,26 @@ class Artemis_CreateProject:
     '''
     def get_compiler_max_name_width(self) -> int:
         return self.__compiler_max_name_width
+    
+
+    '''
+        This function returns the display width for consistent formatting
+    '''
+    def get_display_width(self, compilers_bin_path: list[str]) -> int:
+        if not compilers_bin_path:
+            return 120  # Default width if no compilers
+        
+        min_width = 60
+        compiler_max_width = max(len(os.path.split(c)[1]) for c in compilers_bin_path)
+        compiler_max_width = max(compiler_max_width, min_width)
+        
+        # Calculate the actual display width needed for the dash line
+        display_width = max(
+            len("[Compiler Name]") + compiler_max_width + len("[Compiler Path]") + 20,  # Header width
+            max(len(f"[{i}] -> {os.path.split(c)[1]} {c.split(os.sep)[-2] if len(c.split(os.sep)) > 1 else ''}") for i, c in enumerate(compilers_bin_path, 1)),  # Max row width
+            min_width * 2  # Minimum display width
+        )
+        return display_width
     
 
     '''

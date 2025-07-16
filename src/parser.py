@@ -27,7 +27,7 @@ class Artemis_ArgParser:
         self.__parser.add_argument("-description", help="Human-readable description for the project.", type=str)
 
         # Compiler & platform selection
-        self.__parser.add_argument("-compiler", help="Compiler executable to use (e.g. gcc-14, clang, cl, aarch64-linux-gnu-gcc).", type=str)
+        self.__parser.add_argument("-compiler", nargs="+", help="Compiler executable(s) to use (e.g. gcc-14, clang, cl, aarch64-linux-gnu-gcc). Can specify multiple: gcc g++ clang", type=str)
         self.__parser.add_argument("-compilerbinpath", help="Explicit path to a compiler bin/ directory if not on PATH.", type=str)
         self.__parser.add_argument("-compilerincludepath", help="Extra include (-I) directories for compiler.", type=str)
         self.__parser.add_argument("-compilerlibpath", help="Extra library (-L) directories for compiler.", type=str)
@@ -79,7 +79,43 @@ class Artemis_ArgParser:
 
         try:
             # Detect available compilers
-            compilers = sorted(set(self.__artemis_functions.get_compilers_bin_path_list()))
+            all_compilers = sorted(set(self.__artemis_functions.get_compilers_bin_path_list()))
+            
+            # Filter compilers based on user selection
+            if self.args.compiler:
+                selected_compilers = []
+                for compiler_name in self.args.compiler:
+                    # Find compilers that match the name (case-insensitive)
+                    matching_compilers = [
+                        comp for comp in all_compilers 
+                        if os.path.basename(comp).lower() == compiler_name.lower() or 
+                           os.path.basename(comp).lower().startswith(compiler_name.lower())
+                    ]
+                    selected_compilers.extend(matching_compilers)
+                
+                if selected_compilers:
+                    compilers = sorted(set(selected_compilers))
+                else:
+                    self.__artemis_functions.show_warning_message(f"No compilers found matching: {', '.join(self.args.compiler)}\nShowing all available compilers instead.", self.__artemis_create_project.get_compiler_max_name_width())
+                    compilers = all_compilers
+            else:
+                compilers = all_compilers
+
+            # Handle custom compiler bin path if provided
+            if self.args.compilerbinpath:
+                if os.path.exists(self.args.compilerbinpath):
+                    print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Using custom compiler path: {Artemis_Color.RED.value}{self.args.compilerbinpath}{Artemis_Color.END_LINE.value}")
+                    # Add custom path compilers to the list
+                    custom_compilers = self.__artemis_functions.get_compilers_from_path(self.args.compilerbinpath)
+                    if custom_compilers:
+                        compilers.extend(custom_compilers)
+                        compilers = sorted(set(compilers))
+                else:
+                    # Calculate display width for consistent formatting
+                    min_width = 60
+                    display_width = 61
+                    self.__artemis_functions.show_warning_message(f"Custom compiler path not found: {self.args.compilerbinpath}", display_width)
+
             if not self.__artemis_create_project.print_compilers(compilers):
                 return
 
