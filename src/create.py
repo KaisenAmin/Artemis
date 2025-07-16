@@ -312,3 +312,4 @@ int main() {
 
         cwd = os.getcwd()
         print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value}{Artemis_Color.WHITE.value} ->{Artemis_Color.END_LINE.value} Project '{Artemis_Color.RED.value}{project_name}{Artemis_Color.END_LINE.value}' created at {Artemis_Color.RED.value}{cwd}{Artemis_Color.END_LINE.value}")
+
