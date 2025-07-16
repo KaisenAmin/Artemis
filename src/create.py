@@ -1,6 +1,6 @@
 import os
 
-from src.utils import Artemis_UtilFunctionality
+from src.utils import Artemis_UtilFunctionality, SystemPlatform
 from src.color import Artemis_Color 
 
 
@@ -11,7 +11,7 @@ class Artemis_CreateProject:
         self.__project_name: str = ""
         self.__compiler_max_name_width: int = 0
         self.__artemis_functions = Artemis_UtilFunctionality()
-        self.__plt_config: dict[str: str] = self.__artemis_functions.get_system_platform()
+        self.__plt_config: SystemPlatform = self.__artemis_functions.get_system_platform()
         self.__remainder: int = 10
 
 
@@ -107,7 +107,7 @@ class Artemis_CreateProject:
     '''
         This function print name of compilers and path with .
     '''
-    def print_compilers(self, compilers_bin_path) -> None:
+    def print_compilers(self, compilers_bin_path) -> bool:
         space: int = len(str(len(compilers_bin_path))) - 1
         self.__compiler_max_name_width = max(len(os.path.split(c)[1]) for c in compilers_bin_path)
         

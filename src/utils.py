@@ -1,7 +1,13 @@
 import os 
 import platform
+from typing import TypedDict
 
 from src.color import Artemis_Color
+
+class SystemPlatform(TypedDict):
+    os_name: str
+    system_arch: tuple[str, str]
+    machine_type: str
 
 class Artemis_UtilFunctionality:
     def __init__(self):
@@ -115,7 +121,7 @@ class Artemis_UtilFunctionality:
         This function returns a list of absolute paths to the compiler binaries.
     '''
     def get_compilers_bin_path_list(self) -> list[str]:
-        plt: dict[str : str] = self.get_system_platform()
+        plt: SystemPlatform = self.get_system_platform()
 
         if plt['os_name'] == 'Linux':
             return self.__find_compilers_linux()
@@ -126,7 +132,7 @@ class Artemis_UtilFunctionality:
     '''
         This function return a dictionary of three values os_name, system_architecture and machine_type(AMD ... Intel ..)
     '''
-    def get_system_platform(self) -> dict[str:str]:
+    def get_system_platform(self) -> SystemPlatform:
         os_name: str = platform.system()
         system_arch: tuple[str, str] = platform.architecture()
         machine_type: str = platform.machine()
