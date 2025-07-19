@@ -173,7 +173,7 @@ class Artemis_UtilFunctionality:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(width -6) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.RED.value}Exception{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width -6) * '-'}{Artemis_Color.END_LINE.value}")
         
         print(f"\n{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}\n")
-        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{width * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
+        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width - 10) * 2 * '-'}{Artemis_Color.DASH_WHITE_BACKGROUND_END.value}\n")
 
 
     '''
@@ -183,4 +183,4 @@ class Artemis_UtilFunctionality:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value} {(width -6) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Warning{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width -6) * '-'}{Artemis_Color.END_LINE.value}")
         
         print(f"\n{Artemis_Color.WHITE.value}{message}{Artemis_Color.END_LINE.value}\n")
-        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width - 1) * 2 * '-'}{Artemis_Color.END_LINE.value}\n")
+        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(width - 10) * 2 * '-'}{Artemis_Color.DASH_WHITE_BACKGROUND_END.value}\n")

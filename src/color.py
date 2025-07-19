@@ -9,3 +9,4 @@ class Artemis_Color(Enum):
     YELLOW = "\033[1;33m"
     BLUE = "\033[1;49;34m"
     DASH_WHITE_BACKGROUND = "\033[1;47m"
+    DASH_WHITE_BACKGROUND_END = "\033[0m"

@@ -13,6 +13,8 @@ class Artemis_CreateProject:
         self.__artemis_functions = Artemis_UtilFunctionality()
         self.__plt_config: SystemPlatform = self.__artemis_functions.get_system_platform()
         self.__remainder: int = 10
+        self.__compiler_config: dict = {}  # Store compiler configuration
+        self.__build_config: dict = {}  # Store build system configuration
 
 
     def __show_compilers_selected(self) -> None:
@@ -54,14 +56,15 @@ class Artemis_CreateProject:
                 user_compiler_input: str | list[str] = input(f"\n[{Artemis_Color.RED.value}User Input{Artemis_Color.END_LINE.value}]{Artemis_Color.WHITE.value} -> {Artemis_Color.END_LINE.value}{Artemis_Color.BLUE.value}Please Select Compiler or Compilers by Number [1 2 3 or <all>] : {Artemis_Color.END_LINE.value}").split(' ')
                 integer_user_compiler_input: list[int] = list(map(int, user_compiler_input))
 
-                if len(integer_user_compiler_input) < len(compiler_bin_path):
-                    flag = False 
-                    for i in integer_user_compiler_input:
-                        if i > len(compiler_bin_path) or i < 0:
-                            self.__artemis_functions.show_error_message("Please Select True Number from Compiler Tables", self.__compiler_max_name_width)
-                            flag = True 
-                    if not flag:
-                        break                 
+                # Check if all selected numbers are valid
+                flag = False 
+                for i in integer_user_compiler_input:
+                    if i > len(compiler_bin_path) or i <= 0:
+                        self.__artemis_functions.show_error_message("Please Select True Number from Compiler Tables", self.__compiler_max_name_width)
+                        flag = True 
+                        break
+                if not flag:
+                    break                 
 
             # print(compiler_bin_path)
             # print(integer_user_compiler_input)
@@ -202,6 +205,34 @@ class Artemis_CreateProject:
     
 
     '''
+        Set compiler configuration for build process
+    '''
+    def set_compiler_config(self, config: dict) -> None:
+        self.__compiler_config = config
+    
+
+    '''
+        Get compiler configuration for build process
+    '''
+    def get_compiler_config(self) -> dict:
+        return self.__compiler_config
+    
+
+    '''
+        Set build configuration for build process
+    '''
+    def set_build_config(self, config: dict) -> None:
+        self.__build_config = config
+    
+
+    '''
+        Get build configuration for build process
+    '''
+    def get_build_config(self) -> dict:
+        return self.__build_config
+    
+
+    '''
         set platform configuration for project
     '''
     def platform_configuration(self):
@@ -247,16 +278,25 @@ class Artemis_CreateProject:
     def set_project_name(self, name: str | None = None) -> str:
         print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Set Project Name{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 9) * '-'}{Artemis_Color.END_LINE.value}\n")
 
-        candidate = name
         while True:
-            if candidate and self.check_project_name(candidate):
-                break
+            # Show suggestion if provided
+            if name:
+                print(f"{Artemis_Color.YELLOW.value}[Suggestion]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Suggested name: {Artemis_Color.RED.value}{name}{Artemis_Color.END_LINE.value}")
+            
             candidate = input(f"{Artemis_Color.BLUE.value}Enter project name (letters/digits/_, no leading digit): {Artemis_Color.END_LINE.value}").strip()
-            if not candidate:
+        
+            # If user presses Enter and there's a suggestion, use the suggestion
+            if not candidate and name:
+                candidate = name
+                print(f"\n{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Using suggested name: {Artemis_Color.RED.value}{candidate}{Artemis_Color.END_LINE.value}")
+            elif not candidate:
                 self.__artemis_functions.show_error_message("Please Enter name for the project.", self.__compiler_max_name_width)
-        # print(f"{Artemis_Color.WHITE.value}{(self.__compiler_max_name_width + self.__compiler_max_name_width) * '-'}{Artemis_Color.END_LINE.value}\n")
+                continue
+                
+            if self.check_project_name(candidate):
+                break
 
-        print(f"\n{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.WHITE.value} Your Project Name is [{Artemis_Color.RED.value}{self.get_project_name()}{Artemis_Color.END_LINE.value}]")
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.WHITE.value} Your Project Name is [{Artemis_Color.RED.value}{candidate}{Artemis_Color.END_LINE.value}]")
             
         self.__project_name = candidate
         return candidate
@@ -285,7 +325,7 @@ class Artemis_CreateProject:
                     self.__artemis_functions.show_error_message(f"Failed to create path '{target}': {e}",self.__compiler_max_name_width)
 
             target = input(f"{Artemis_Color.BLUE.value}Enter base path for project (will be created if needed):{Artemis_Color.END_LINE.value}").strip()
-            
+
             if not target:
                 self.__artemis_functions.show_error_message("Project base path cannot be empty.", self.__compiler_max_name_width)
                 target = None
@@ -318,6 +358,19 @@ int main() {
 }
 """)
         print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Project structure {Artemis_Color.RED.value}created{Artemis_Color.END_LINE.value}.")
+
+        # Generate build configuration files if compiler config exists
+        if self.__compiler_config:
+            build_config = self.get_build_config()
+            
+            if build_config.get('use_cmake'):
+                self.generate_cmake_lists()
+            elif build_config.get('use_meson'):
+                self.generate_meson_build()
+                self.generate_src_meson_build()  # Generate src/meson.build
+            else:
+                # Default to Makefile
+                self.generate_makefile()
 
         # Generate README.md with description
         readme_content = f"""# {self.__project_name}
@@ -368,4 +421,411 @@ int main() {
 
         cwd = os.getcwd()
         print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value}{Artemis_Color.WHITE.value} ->{Artemis_Color.END_LINE.value} Project '{Artemis_Color.RED.value}{project_name}{Artemis_Color.END_LINE.value}' created at {Artemis_Color.RED.value}{cwd}{Artemis_Color.END_LINE.value}")
+
+
+    """
+        Generate a Makefile with the current compiler configuration
+    """
+    def generate_makefile(self) -> None:
+        config = self.get_compiler_config()
+        compilers = self.get_compilers_user_selection()
+        
+        if not compilers:
+            return
+        
+        # Get the first selected compiler and its path
+        selected_compiler = compilers[0]
+        compiler_path = os.path.dirname(selected_compiler)
+        compiler_name = os.path.basename(selected_compiler)
+        
+        # Determine C++ compiler based on selected compiler
+        if 'gcc' in compiler_name and not 'g++' in compiler_name:
+            cxx_compiler = selected_compiler.replace('gcc', 'g++')
+        elif 'clang' in compiler_name and not 'clang++' in compiler_name:
+            cxx_compiler = selected_compiler.replace('clang', 'clang++')
+        else:
+            # If it's already a C++ compiler or we can't determine, use the same
+            cxx_compiler = selected_compiler
+        
+        makefile_content = f"""# Makefile generated by Artemis
+# Project: {self.__project_name}
+
+# Compilers (based on user selection)
+CC = {selected_compiler}
+CXX = {cxx_compiler}
+
+# Compiler flags
+CFLAGS = -Wall -Wextra -std=c99
+CXXFLAGS = -Wall -Wextra -std=c++17
+
+# Include directories
+INCLUDES = {' '.join(f'-I{path}' for path in config.get('include_paths', []))}
+
+# Library directories
+LDFLAGS = {' '.join(f'-L{path}' for path in config.get('lib_paths', []))}
+
+# Libraries
+LIBS = {' '.join(f'-l{lib}' for lib in config.get('libraries', []))}
+
+# Source files
+SRC_DIR = src
+BUILD_DIR = build
+BIN_DIR = bin
+
+# Find all source files
+C_SOURCES = $(wildcard $(SRC_DIR)/*.c)
+CXX_SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS = $(C_SOURCES:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o) $(CXX_SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
+
+# Target executable
+TARGET = $(BIN_DIR)/{self.__project_name}
+
+# Default target
+all: $(TARGET)
+
+# Create directories
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
+# Compile C files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Compile C++ files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Link executable
+$(TARGET): $(OBJECTS) | $(BIN_DIR)
+	$(CXX) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
+
+# Install (optional)
+install: $(TARGET)
+	cp $(TARGET) /usr/local/bin/
+
+.PHONY: all clean install
+"""
+        
+        with open('Makefile', 'w') as f:
+            f.write(makefile_content)
+        
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Generated {Artemis_Color.RED.value}Makefile{Artemis_Color.END_LINE.value} using {Artemis_Color.RED.value}{compiler_name}{Artemis_Color.END_LINE.value} from {Artemis_Color.RED.value}{compiler_path}{Artemis_Color.END_LINE.value}")
+
+
+    """
+        Generate CMakeLists.txt with the current compiler configuration
+    """
+    def generate_cmake_lists(self) -> None:
+        config = self.get_compiler_config()
+        compilers = self.get_compilers_user_selection()
+        
+        if not compilers:
+            return
+        
+        # Get the first selected compiler and its path
+        selected_compiler = compilers[0]
+        compiler_path = os.path.dirname(selected_compiler)
+        compiler_name = os.path.basename(selected_compiler)
+        
+        # Determine C++ compiler based on selected compiler
+        if 'gcc' in compiler_name and not 'g++' in compiler_name:
+            cxx_compiler = selected_compiler.replace('gcc', 'g++')
+        elif 'clang' in compiler_name and not 'clang++' in compiler_name:
+            cxx_compiler = selected_compiler.replace('clang', 'clang++')
+        else:
+            # If it's already a C++ compiler or we can't determine, use the same
+            cxx_compiler = selected_compiler
+        
+        cmake_content = f"""# CMakeLists.txt generated by Artemis
+# Project: {self.__project_name}
+
+cmake_minimum_required(VERSION 3.10)
+project({self.__project_name})
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Set compiler based on user selection
+set(CMAKE_C_COMPILER {selected_compiler})
+set(CMAKE_CXX_COMPILER {cxx_compiler})
+
+# Include directories
+{chr(10).join(f'include_directories({path})' for path in config.get('include_paths', []))}
+
+# Library directories
+{chr(10).join(f'link_directories({path})' for path in config.get('lib_paths', []))}
+
+# Find source files
+file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
+
+# Create executable
+add_executable({self.__project_name} ${{SOURCES}})
+
+# Link libraries
+{chr(10).join(f'target_link_libraries({self.__project_name} {lib})' for lib in config.get('libraries', []))}
+
+# Set compiler flags
+target_compile_options({self.__project_name} PRIVATE -Wall -Wextra)
+
+# Install target
+install(TARGETS {self.__project_name} DESTINATION bin)
+"""
+        
+        with open('CMakeLists.txt', 'w') as f:
+            f.write(cmake_content)
+        
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Generated {Artemis_Color.RED.value}CMakeLists.txt{Artemis_Color.END_LINE.value} using {Artemis_Color.RED.value}{compiler_name}{Artemis_Color.END_LINE.value} from {Artemis_Color.RED.value}{compiler_path}{Artemis_Color.END_LINE.value}")
+        
+        # Validate CMake configuration
+        self.__validate_cmake_configuration(selected_compiler, cxx_compiler, config)
+
+
+    """
+        Generate meson.build with the current compiler configuration
+    """
+    def generate_meson_build(self) -> None:
+        config = self.get_compiler_config()
+        compilers = self.get_compilers_user_selection()
+        
+        if not compilers:
+            return
+        
+        # Get the first selected compiler and its path
+        selected_compiler = compilers[0]
+        compiler_path = os.path.dirname(selected_compiler)
+        compiler_name = os.path.basename(selected_compiler)
+        
+        # Determine C++ compiler based on selected compiler
+        if 'gcc' in compiler_name and not 'g++' in compiler_name:
+            cxx_compiler = selected_compiler.replace('gcc', 'g++')
+        elif 'clang' in compiler_name and not 'clang++' in compiler_name:
+            cxx_compiler = selected_compiler.replace('clang', 'clang++')
+        else:
+            # If it's already a C++ compiler or we can't determine, use the same
+            cxx_compiler = selected_compiler
+        
+        meson_content = f"""# meson.build generated by Artemis
+# Project: {self.__project_name}
+
+project('{self.__project_name}', 'cpp',
+  version : '1.0.0',
+  default_options : ['warning_level=3'])
+
+# Set C++ standard
+cpp = meson.get_compiler('cpp')
+cpp_std = cpp.get_id() == 'msvc' ? 'c++17' : 'c++17'
+add_project_arguments(cpp.get_supported_arguments(['-std=' + cpp_std]), language : 'cpp')
+
+# Set compiler based on user selection
+# Note: Meson will automatically detect the compiler from PATH
+# You may need to set CC and CXX environment variables if using custom paths
+
+# Include directories
+{chr(10).join(f"incdir{i} = include_directories('{path}')" for i, path in enumerate(config.get('include_paths', [])))}
+
+# Library dependencies
+{chr(10).join(f"dep{i} = dependency('{lib}', required: true)" for i, lib in enumerate(config.get('libraries', [])))}
+
+# Find source files
+sources = []
+subdir('src')
+
+# Create executable
+exe = executable('{self.__project_name}', sources,
+  include_directories : {f"[{', '.join(f'incdir{i}' for i in range(len(config.get('include_paths', []))))}]" if config.get('include_paths') else "[]"},
+  dependencies : {f"[{', '.join(f'dep{i}' for i in range(len(config.get('libraries', []))))}]" if config.get('libraries') else "[]"},
+  link_args : {f"['-L{path}' for path in ['{chr(10).join(config.get('lib_paths', []))}']]" if config.get('lib_paths') else "[]"})
+
+# Install
+install(exe)
+"""
+        
+        with open('meson.build', 'w') as f:
+            f.write(meson_content)
+        
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Generated {Artemis_Color.RED.value}meson.build{Artemis_Color.END_LINE.value} using {Artemis_Color.RED.value}{compiler_name}{Artemis_Color.END_LINE.value} from {Artemis_Color.RED.value}{compiler_path}{Artemis_Color.END_LINE.value}")
+        
+        # Validate Meson configuration
+        self.__validate_meson_configuration(selected_compiler, cxx_compiler, config)
+
+    """
+        Generate src/meson.build with the current compiler configuration
+    """
+    def generate_src_meson_build(self) -> None:
+        config = self.get_compiler_config()
+        compilers = self.get_compilers_user_selection()
+        
+        if not compilers:
+            return
+        
+        # Get the first selected compiler and its path
+        selected_compiler = compilers[0]
+        compiler_path = os.path.dirname(selected_compiler)
+        compiler_name = os.path.basename(selected_compiler)
+        
+        src_meson_content = f"""# src/meson.build generated by Artemis
+# Project: {self.__project_name}
+
+# Find all source files in this directory
+sources = [
+  'main.cpp',
+  # Add more source files here as needed
+]
+
+# Add sources to the parent project
+sources += sources
+"""
+        
+        with open('src/meson.build', 'w') as f:
+            f.write(src_meson_content)
+        
+        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Generated {Artemis_Color.RED.value}src/meson.build{Artemis_Color.END_LINE.value} using {Artemis_Color.RED.value}{compiler_name}{Artemis_Color.END_LINE.value} from {Artemis_Color.RED.value}{compiler_path}{Artemis_Color.END_LINE.value}")
+
+
+    """
+        Validate CMake configuration and provide feedback
+    """
+    def __validate_cmake_configuration(self, c_compiler: str, cxx_compiler: str, config: dict) -> None:
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 8) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}CMake Validation{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 8) * '-'}{Artemis_Color.END_LINE.value}")
+        
+        # Check if compilers exist
+        c_compiler_exists = os.path.exists(c_compiler)
+        cxx_compiler_exists = os.path.exists(cxx_compiler)
+        
+        if c_compiler_exists:
+            print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} C compiler found: {Artemis_Color.WHITE.value}{c_compiler}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} C compiler not found: {Artemis_Color.WHITE.value}{c_compiler}{Artemis_Color.END_LINE.value}")
+        
+        if cxx_compiler_exists:
+            print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} C++ compiler found: {Artemis_Color.WHITE.value}{cxx_compiler}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} C++ compiler not found: {Artemis_Color.WHITE.value}{cxx_compiler}{Artemis_Color.END_LINE.value}")
+        
+        # Check include paths
+        include_paths = config.get('include_paths', [])
+        if include_paths:
+            print(f"\n{Artemis_Color.YELLOW.value}[Include Paths]{Artemis_Color.END_LINE.value}")
+            for path in include_paths:
+                if os.path.exists(path):
+                    print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} Include path exists: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+                else:
+                    print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} Include path not found: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.YELLOW.value}[Info]{Artemis_Color.END_LINE.value} No include paths specified")
+        
+        # Check library paths
+        lib_paths = config.get('lib_paths', [])
+        if lib_paths:
+            print(f"\n{Artemis_Color.YELLOW.value}[Library Paths]{Artemis_Color.END_LINE.value}")
+            for path in lib_paths:
+                if os.path.exists(path):
+                    print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} Library path exists: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+                else:
+                    print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} Library path not found: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.YELLOW.value}[Info]{Artemis_Color.END_LINE.value} No library paths specified")
+        
+        # Check libraries
+        libraries = config.get('libraries', [])
+        if libraries:
+            print(f"\n{Artemis_Color.YELLOW.value}[Libraries]{Artemis_Color.END_LINE.value}")
+            for lib in libraries:
+                print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} Library to link: {Artemis_Color.WHITE.value}{lib}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.YELLOW.value}[Info]{Artemis_Color.END_LINE.value} No libraries specified")
+        
+        # Provide build commands
+        print(f"\n{Artemis_Color.YELLOW.value}[Build Commands]{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.WHITE.value}To build your project, run:{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}mkdir build{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}cd build{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}cmake ..{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}cmake --build .{Artemis_Color.END_LINE.value}")
+        
+        # Overall status
+        if c_compiler_exists and cxx_compiler_exists:
+            print(f"\n{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}CMake configuration is ready for building!{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"\n{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}CMake configuration has issues. Please check compiler paths.{Artemis_Color.END_LINE.value}")
+        
+        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * 2 * '-'}{Artemis_Color.DASH_WHITE_BACKGROUND_END.value}\n")
+
+
+    """
+        Validate Meson configuration and provide feedback
+    """
+    def __validate_meson_configuration(self, c_compiler: str, cxx_compiler: str, config: dict) -> None:
+        print(f"\n{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 8) * '-'}{Artemis_Color.END_LINE.value} {Artemis_Color.YELLOW.value}Meson Validation{Artemis_Color.END_LINE.value} {Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 8) * '-'}{Artemis_Color.END_LINE.value}")
+        
+        # Check if compilers exist
+        c_compiler_exists = os.path.exists(c_compiler)
+        cxx_compiler_exists = os.path.exists(cxx_compiler)
+        
+        if c_compiler_exists:
+            print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} C compiler found: {Artemis_Color.WHITE.value}{c_compiler}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} C compiler not found: {Artemis_Color.WHITE.value}{c_compiler}{Artemis_Color.END_LINE.value}")
+        
+        if cxx_compiler_exists:
+            print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} C++ compiler found: {Artemis_Color.WHITE.value}{cxx_compiler}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} C++ compiler not found: {Artemis_Color.WHITE.value}{cxx_compiler}{Artemis_Color.END_LINE.value}")
+        
+        # Check include paths
+        include_paths = config.get('include_paths', [])
+        if include_paths:
+            print(f"\n{Artemis_Color.YELLOW.value}[Include Paths]{Artemis_Color.END_LINE.value}")
+            for path in include_paths:
+                if os.path.exists(path):
+                    print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} Include path exists: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+                else:
+                    print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} Include path not found: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.YELLOW.value}[Info]{Artemis_Color.END_LINE.value} No include paths specified")
+        
+        # Check library paths
+        lib_paths = config.get('lib_paths', [])
+        if lib_paths:
+            print(f"\n{Artemis_Color.YELLOW.value}[Library Paths]{Artemis_Color.END_LINE.value}")
+            for path in lib_paths:
+                if os.path.exists(path):
+                    print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} Library path exists: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+                else:
+                    print(f"{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} Library path not found: {Artemis_Color.WHITE.value}{path}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.YELLOW.value}[Info]{Artemis_Color.END_LINE.value} No library paths specified")
+        
+        # Check libraries
+        libraries = config.get('libraries', [])
+        if libraries:
+            print(f"\n{Artemis_Color.YELLOW.value}[Libraries]{Artemis_Color.END_LINE.value}")
+            for lib in libraries:
+                print(f"{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} Library to link: {Artemis_Color.WHITE.value}{lib}{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"{Artemis_Color.YELLOW.value}[Info]{Artemis_Color.END_LINE.value} No libraries specified")
+        
+        # Provide build commands
+        print(f"\n{Artemis_Color.YELLOW.value}[Build Commands]{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.WHITE.value}To build your project, run:{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}mkdir build{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}cd build{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}meson setup build{Artemis_Color.END_LINE.value}")
+        print(f"{Artemis_Color.BLUE.value}meson compile -C build{Artemis_Color.END_LINE.value}")
+        
+        # Overall status
+        if c_compiler_exists and cxx_compiler_exists:
+            print(f"\n{Artemis_Color.GREEN.value}[✓]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}Meson configuration is ready for building!{Artemis_Color.END_LINE.value}")
+        else:
+            print(f"\n{Artemis_Color.RED.value}[✗]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}Meson configuration has issues. Please check compiler paths.{Artemis_Color.END_LINE.value}")
+        
+        print(f"{Artemis_Color.DASH_WHITE_BACKGROUND.value}{(self.__compiler_max_name_width - 10) * 2 * '-'}{Artemis_Color.DASH_WHITE_BACKGROUND_END.value}\n")
 

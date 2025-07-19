@@ -81,6 +81,39 @@ class Artemis_ArgParser:
             # Detect available compilers
             all_compilers = sorted(set(self.__artemis_functions.get_compilers_bin_path_list()))
             
+            # Store compiler configuration for later use
+            compiler_config = {
+                'include_paths': self.args.compilerincludepath.split(os.pathsep) if self.args.compilerincludepath else [],
+                'lib_paths': self.args.compilerlibpath.split(os.pathsep) if self.args.compilerlibpath else [],
+                'libraries': self.args.lib if self.args.lib else []
+            }
+            
+            # Validate and display include paths
+            if compiler_config['include_paths']:
+                valid_include_paths = []
+                for path in compiler_config['include_paths']:
+                    if os.path.exists(path):
+                        valid_include_paths.append(path)
+                        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Include path: {Artemis_Color.RED.value}{path}{Artemis_Color.END_LINE.value}")
+                    else:
+                        print(f"{Artemis_Color.YELLOW.value}[Warning]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Include path not found: {Artemis_Color.RED.value}{path}{Artemis_Color.END_LINE.value}")
+                compiler_config['include_paths'] = valid_include_paths
+            
+            # Validate and display library paths
+            if compiler_config['lib_paths']:
+                valid_lib_paths = []
+                for path in compiler_config['lib_paths']:
+                    if os.path.exists(path):
+                        valid_lib_paths.append(path)
+                        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Library path: {Artemis_Color.RED.value}{path}{Artemis_Color.END_LINE.value}")
+                    else:
+                        print(f"{Artemis_Color.YELLOW.value}[Warning]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Library path not found: {Artemis_Color.RED.value}{path}{Artemis_Color.END_LINE.value}")
+                compiler_config['lib_paths'] = valid_lib_paths
+            
+            # Display libraries to link
+            if compiler_config['libraries']:
+                print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Libraries to link: {Artemis_Color.RED.value}{', '.join(compiler_config['libraries'])}{Artemis_Color.END_LINE.value}")
+            
             # Filter compilers based on user selection
             if self.args.compiler:
                 selected_compilers = []
@@ -110,14 +143,28 @@ class Artemis_ArgParser:
                     if custom_compilers:
                         compilers.extend(custom_compilers)
                         compilers = sorted(set(compilers))
+                        print(f"{Artemis_Color.GREEN.value}[Info]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} Found {Artemis_Color.RED.value}{len(custom_compilers)}{Artemis_Color.END_LINE.value} compilers in custom path")
+                    else:
+                        print(f"{Artemis_Color.YELLOW.value}[Warning]{Artemis_Color.END_LINE.value} {Artemis_Color.WHITE.value}->{Artemis_Color.END_LINE.value} No valid compilers found in custom path: {Artemis_Color.RED.value}{self.args.compilerbinpath}{Artemis_Color.END_LINE.value}")
                 else:
                     # Calculate display width for consistent formatting
                     min_width = 60
-                    display_width = 61
+                    display_width = min_width
                     self.__artemis_functions.show_warning_message(f"Custom compiler path not found: {self.args.compilerbinpath}", display_width)
 
             if not self.__artemis_create_project.print_compilers(compilers):
                 return
+
+            # Store compiler configuration for build process
+            self.__artemis_create_project.set_compiler_config(compiler_config)
+
+            # Store build system preferences
+            build_config = {
+                'use_cmake': self.args.use_cmake,
+                'use_meson': self.args.use_meson,
+                'jobs': self.args.jobs
+            }
+            self.__artemis_create_project.set_build_config(build_config)
 
             # Platform configuration
             if not self.args.platform:
